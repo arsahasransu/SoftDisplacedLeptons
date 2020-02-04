@@ -5,6 +5,11 @@
 #include "TFile.h"
 #include "TLorentzVector.h"
 
+// void function essential for bug-free root compilation
+void VariableMaker(void){
+    return;
+}
+
 int createVarOutTree(TChain* tree, TString outFileName){
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
