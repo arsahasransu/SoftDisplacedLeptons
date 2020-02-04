@@ -63,9 +63,12 @@ int createVarOutTree(TChain* tree, TString outFileName){
   // From plotVarDisb_Objects_6
   std::vector<double> Iso_Lep, Iso_El, Iso_Mu, leadIso_Lep, leadIso_El, leadIso_Mu, subLeadIso_Lep, subLeadIso_El, subLeadIso_Mu, diffIso_Lep;
   // From plotVarDisb_Objects_7
-  double Met, MetLepJet, MetLep, MetJet, MetDiffMetLepJet, Met_Phi, MetLepJet_Phi, MetLep_Phi, MetJet_Phi, MetDiffMetLepJet_Phi, Ht, HtLepJet, HtLep, HtJet, HtDiffHtLepJet, DiffMetHt, DiffMetHtLepJet, DiffMetHtLep, DiffMetHtJet;
+  std::vector<double> Met, MetLepJet, MetLep, MetJet, MetDiffMetLepJet, Met_Phi, MetLepJet_Phi, MetLep_Phi, MetJet_Phi, MetDiffMetLepJet_Phi, Ht, HtLepJet, HtLep, HtJet, HtDiffHtLepJet, DiffMetHt, DiffMetHtLepJet, DiffMetHtLep, DiffMetHtJet;
   // From plotVarDisb_Objects_8
-    
+  std::vector<double> dRLL, dEtaLepJet, dPhiLepJet, dRLepJet, dPhiLepMET, dPhiLepMETSelObj;
+  // From plotVarDisb_Objects_Misc
+  std::vector<double> YDelpObj, YUserObj, ST, alphaT, MLL, MLLMET, M, Sphericity, Spherocity;
+      
   auto varOutFile = new TFile(outFileName, "recreate");
   auto varTree = new TTree("varTree", "Input Variables List for Algorithms");
   varTree->Branch("NLep", &NLep);
@@ -158,7 +161,24 @@ int createVarOutTree(TChain* tree, TString outFileName){
   varTree->Branch("DiffMetHtLepJet", &DiffMetHtLepJet);
   varTree->Branch("DiffMetHtLep", &DiffMetHtLep);
   varTree->Branch("DiffMetHtJet", &DiffMetHtJet);
-
+  ////////////////////////////////////////////////  
+  varTree->Branch("dRLL", &dRLL);
+  varTree->Branch("dEtaLepJet", &dEtaLepJet);
+  varTree->Branch("dPhiLepJet", &dPhiLepJet);
+  varTree->Branch("dRLepJet", &dRLepJet);
+  varTree->Branch("dPhiLepMET", &dPhiLepMET);
+  varTree->Branch("dPhiLepMETSelObj", &dPhiLepMETSelObj);
+  ////////////////////////////////////////////////  
+  varTree->Branch("YDelpObj", &YDelpObj);
+  varTree->Branch("YUserObj", &YUserObj);
+  varTree->Branch("ST", &ST);
+  varTree->Branch("alphaT", &alphaT);
+  varTree->Branch("MLL", &MLL);
+  varTree->Branch("MLLMET", &MLLMET);
+  varTree->Branch("M", &M);
+  varTree->Branch("Sphericity", &Sphericity);
+  varTree->Branch("Spherocity", &Spherocity);
+  
   // Statistic variable
   int SelectedEvents = 0;
 
@@ -231,7 +251,44 @@ int createVarOutTree(TChain* tree, TString outFileName){
     subLeadIso_El.clear();
     subLeadIso_Mu.clear();
     diffPhi_Lep.clear();
-    
+    ////////////////////////////////////////////////  
+    Met.clear();
+    MetLepJet.clear();
+    MetLep.clear();
+    MetJet.clear();
+    MetDiffMetLepJet.clear();
+    Met_Phi.clear();
+    MetLepJet_Phi.clear();
+    MetLep_Phi.clear();
+    MetJet_Phi.clear();
+    MetDiffMetLepJet_Phi.clear();
+    Ht.clear();
+    HtLepJet.clear();
+    HtLep.clear();
+    HtJet.clear();
+    HtDiffHtLepJet.clear();
+    DiffMetHt.clear();
+    DiffMetHtLepJet.clear();
+    DiffMetHtLep.clear();
+    DiffMetHtJet.clear();
+    ////////////////////////////////////////////////  
+    dRLL.clear();
+    dEtaLepJet.clear();
+    dPhiLepJet.clear();
+    dRLepJet.clear();
+    dPhiLepMET.clear();
+    dPhiLepMETSelObj.clear();
+    ////////////////////////////////////////////////  
+    YDelpObj.clear();
+    YUserObj.clear();
+    ST.clear();
+    alphaT.clear();
+    MLL.clear();
+    MLLMET.clear();
+    M.clear();
+    Sphericity.clear();
+    Spherocity.clear();;
+
     if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
     
     tree->GetEntry(evtCtr);
@@ -286,6 +343,8 @@ int createVarOutTree(TChain* tree, TString outFileName){
     lepvec.push_back(&lep1);
     lepvec.push_back(&lep2);
 
+    dRLL.push_back(TMath::Abs(lep1.DeltaR(lep2)));
+		   
     double htlep=0.0, htjet=0.0, htlepjet=0.0;
     int numGoodJet=0;
     int jetFirstPos = -1;
@@ -295,12 +354,12 @@ int createVarOutTree(TChain* tree, TString outFileName){
     for(int objCtr=0; objCtr<lenObj; objCtr++) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
-
+      
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
       lepSum += lepSingle;
       htlep += PT->at(objCtr);
-
+      
       PT_Lep.push_back(PT->at(objCtr));
       Eta_Lep.push_back(Eta->at(objCtr));
       Phi_Lep.push_back(Phi->at(objCtr));
@@ -320,9 +379,9 @@ int createVarOutTree(TChain* tree, TString outFileName){
 	D0_El.push_back(D0->at(objCtr));
 	Iso_El.push_back(Iso->at(objCtr));
       }
-
+      
     } // End lepton loop
-
+    
     leadPT_Lep.push_back(PT->at(firstPos));
     subLeadPT_Lep.push_back(PT->at(secondPos));
     diffPT_Lep.push_back(TMath::Abs(PT->at(firstPos)-PT->at(secondPos)));
@@ -393,9 +452,14 @@ int createVarOutTree(TChain* tree, TString outFileName){
 
     NJet = numGoodJet;
     if(numGoodJet>=1) {
+      TLorentzVector leadJet;
+      leadJet.SetPtEtaPhiM(JetPT->at(jetFirstPos), JetEta->at(jetFirstPos), JetPhi->at(jetFirstPos), JetM->at(jetFirstPos));
       leadPT_Jet.push_back(JetPT->at(jetFirstPos));
       leadEta_Jet.push_back(JetEta->at(jetFirstPos));
       leadPhi_Jet.push_back(JetPhi->at(jetFirstPos));
+      dEtaLepJet.push_back(TMath::Abs(Eta->at(firstPos)-JetEta->at(jetFirstPos)));
+      dPhiLepJet.push_back(TMath::Abs(lep1.DeltaPhi(leadJet)));
+      dRLepJet.push_back(lep1.DeltaR(leadJet));
     }
     if(numGoodJet>=2) {
       subLeadPT_Jet.push_back(JetPT->at(jetSecondPos));
@@ -405,41 +469,55 @@ int createVarOutTree(TChain* tree, TString outFileName){
       subLeadPhi_Jet.push_back(JetPhi->at(jetSecondPos));
       diffPhi_Jet.push_back(JetPhi->at(jetFirstPos)-JetPhi->at(jetSecondPos));
     }
-
+    
     if(MET>20.0) {
-      Met = MET;
-      MetDiffMetLepJet = TMath::Abs(diffObjMet.Pt());
-      Met_Phi = MET_Phi;
-      MetDiffMetLepJet_Phi = diffObjMet.Phi();
-      Ht = HT;
-      HtDiffHtLepJet = TMath::Abs(HT-htlepjet);
+      Met.push_back(MET);
+      MetDiffMetLepJet.push_back(TMath::Abs(diffObjMet.Pt()));
+      Met_Phi.push_back(MET_Phi);
+      MetDiffMetLepJet_Phi.push_back(diffObjMet.Phi());
+      Ht.push_back(HT);
+      HtDiffHtLepJet.push_back(TMath::Abs(HT-htlepjet));
+      dPhiLepMET.push_back(TMath::Abs(lep1.DeltaPhi(metVec)));
     }
     
-    MetLepJet = objSum.Pt();
-    MetLep = lepSum.Pt();
-    MetLepJet_Phi = objSum.Phi();
-    MetLep_Phi = lepSum.Phi();
-    HtLepJet = htlepjet;
-    HtLep = htlep;
-    DiffMetHtLepJet = TMath::Abs(objSum.Pt()-htlepjet);
-    DiffMetHtLep = TMath::Abs(lepSum.Pt()-htlep);
-
+    MetLepJet.push_back(objSum.Pt());
+    MetLep.push_back(lepSum.Pt());
+    MetLepJet_Phi.push_back(objSum.Phi());
+    MetLep_Phi.push_back(lepSum.Phi());
+    HtLepJet.push_back(htlepjet);
+    HtLep.push_back(htlep);
+    DiffMetHtLepJet.push_back(TMath::Abs(objSum.Pt()-htlepjet));
+    DiffMetHtLep.push_back(TMath::Abs(lepSum.Pt()-htlep));
+    dPhiLepMETSelObj.push_back(TMath::Abs(lep1.DeltaPhi(objSum)));
+    
     if(numGoodJet!=0) {
-      MetJet = jetSum.Pt();
-      MetJet_Phi = jetSum.Phi();
-      HtJet = htjet;
-      DiffMetHtJet = TMath::Abs(jetSum.Pt()-htjet);
+      MetJet.push_back(jetSum.Pt());
+      MetJet_Phi.push_back(jetSum.Phi());
+      HtJet.push_back(htjet);
+      DiffMetHtJet.push_back(TMath::Abs(jetSum.Pt()-htjet));
     }
-
-    if(MET>20.0 && HT>20.0) DiffMetHt = TMath::Abs(MET-HT);
+    
+    if(MET>20.0 && HT>20.0) {
+      DiffMetHt.push_back(TMath::Abs(MET-HT));
+      YDelpObj.push_back(MET/TMath::Sqrt(HT));
+    }
+    
+    YUserObj.push_back(TMath::Abs(objSum.Pt())/TMath::Sqrt(htlep));
+    if(MET>20.0) ST.push_back(htlepjet+MET);
+    else ST.push_back(htlepjet);
+    double mt = TMath::Sqrt(htlep*htlep-lepSum.Pt()*lepSum.Pt());
+    alphaT.push_back(PT->at(secondPos)/mt);
+    MLL.push_back(TMath::Abs((lep1+lep2).M()));
+    MLLMET.push_back(TMath::Abs((lep1+lep2+metVec).M()));
+    M.push_back(TMath::Abs((objSum+metVec).M()));
     
     // Fill the tree with variables from the selected event
     varTree->Fill();
     
   } // End of Event Loop
-
+  
   varOutFile->Write();
-    
+  
   return SelectedEvents;
 }
 
