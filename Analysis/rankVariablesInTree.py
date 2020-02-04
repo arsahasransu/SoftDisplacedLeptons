@@ -5,7 +5,7 @@ from itertools import permutations
 
 # small macro that just takes all branches in a flat tree and calculates the ranking
 
-noplots=True
+noplots=False
 extracut=" ";
 sigtree=rt.TChain("varTree","varTree")
 bgtree=rt.TChain("varTree","varTree")
@@ -20,7 +20,11 @@ for branchname in listofbranches:
     workname=branchname.GetName()
 #    print(workname)
     min=sigtree.GetMinimum(workname)
+    if bgtree.GetMinimum(workname) < min :
+        min = bgtree.GetMinimum(workname)
     max=sigtree.GetMaximum(workname)
+    if bgtree.GetMaximum(workname) > max :
+        max = bgtree.GetMaximum(workname)
 #    print("checking out axis ranges etc...",min,max)
     histsig = rt.TH1D("histsig_"+workname,"",20,min,max)
     histsig.Sumw2()
@@ -30,13 +34,17 @@ for branchname in listofbranches:
 #    print("now histos are filled")
     histbg.SetXTitle(workname)
     histsig.SetXTitle(workname)
-#    print("filling histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events")
+    if histbg.GetSum()*histsig.GetSum()==0 :
+        print("histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events, and integrals ",histsig.GetSum()," ",histbg.GetSum()," exiting")
+        continue
+    
+#    print("histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events")
   
     print(workname," comparison, probability overlap:")
+    histsig.Scale(1./histsig.GetSum())
+    histbg.Scale(1./histbg.GetSum())
     probhist1=histsig.Clone("probhist1"+workname)
-    probhist1.Scale(1./probhist1.GetSum())
     probhist2=histbg.Clone("probhist2"+workname)
-    probhist2.Scale(1./probhist2.GetSum())
     probhist1.Multiply(probhist2)
     print("overlap probability: ",probhist1.GetSum())
     rankworker=[round(probhist1.GetSum(),4),workname]
@@ -49,9 +57,12 @@ for branchname in listofbranches:
               histsig.SetMaximum(1.05*histbg.GetMaximum())
           histsig.Draw()
           histbg.Draw("same")
+          
           canv.Update()
-          canv.Print("overviewplot_"+workname+".root")
-          canv.Print("overviewplot_"+workname+".pdf")
+          canv.BuildLegend()
+          canv.Update()
+#          canv.Print("overviewplot_"+workname+".root")
+#          canv.Print("overviewplot_"+workname+".pdf")
           canv.Print("overviewplot_"+workname+".png")
     
 print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
