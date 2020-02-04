@@ -71,8 +71,9 @@ for branchname in listofbranches:
           canv.cd()
           histsig.SetLineColor(rt.kRed)
           histbg.SetLineColor(rt.kAzure)
-          histbg.SetName("background")
-          histsig.SetName("signal")
+          histbg.SetTitle("background")
+          histsig.SetTitle("signal")
+          histsig.SetXTitle(workname)
           if histsig.GetMaximum()< histbg.GetMaximum():
               histsig.SetMaximum(1.05*histbg.GetMaximum())
           histsig.Draw()
