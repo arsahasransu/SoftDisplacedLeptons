@@ -15,8 +15,11 @@ print("now filled trees:",sigtree.GetEntries(),bgtree.GetEntries())
 canv = rt.TCanvas("canv","canv")
 listofbranches = sigtree.GetListOfBranches()
 ranking=[[100,"variable"]]
+# create directory to dump all the plots in
+dirname="rankVariablesInTree_plots"
+rt.gSystem.Exec("mkdir "+dirname)
 for branchname in listofbranches:
-#    print(branchname)
+    print("next variable is:",branchname)
     workname=branchname.GetName()
 #    print(workname)
     min=0
@@ -25,23 +28,25 @@ for branchname in listofbranches:
     htemp = rt.gDirectory.Get("htemp"+workname)
     min =htemp.GetXaxis().GetXmin()
     max = htemp.GetXaxis().GetXmax()
-    print(workname, htemp.GetXaxis().GetXmin() , htemp.GetXaxis().GetXmax(), min, max )
+#    print(workname, htemp.GetXaxis().GetXmin() , htemp.GetXaxis().GetXmax(), min, max )
     if min > htemp.GetXaxis().GetXmin() :
         min = htemp.GetXaxis().GetXmin()
     if max < htemp.GetXaxis().GetXmax() :
         max = htemp.GetXaxis().GetXmax()
-    print("checking out axis ranges etc...",min,max)
-    histsig = rt.TH1D("histsig"+workname,"",20,min,max)
+    NBINS = htemp.GetXaxis().GetNbins()
+    htemp.Delete()
+#    print("checking out axis ranges etc...",min,max)
+    histsig = rt.TH1D("histsig"+workname,"",NBINS,min,max)
     histsig.Sumw2()
     histsig.SetXTitle(workname)
-    histbg= rt.TH1D("histbg"+workname,"",20,min,max)
+    histbg= rt.TH1D("histbg"+workname,"",NBINS,min,max)
     histbg.Sumw2()
     histbg.SetXTitle(workname)
-    drawcommand = workname + ">>"+histsig.GetName()+"(20,"+str(min)+","+str(max)+")"
+    drawcommand = workname + ">>"+histsig.GetName()+"("+str(NBINS)+","+str(min)+","+str(max)+")"
     sigtree.Draw(drawcommand)
-    print(drawcommand)
-    drawcommand = workname + ">>"+histbg.GetName()+"(20,"+str(min)+","+str(max)+")"
-    print(drawcommand)
+#    print(drawcommand)
+    drawcommand = workname + ">>"+histbg.GetName()+"("+str(NBINS)+","+str(min)+","+str(max)+")"
+#    print(drawcommand)
     bgtree.Draw(drawcommand)
     histbg=rt.gDirectory.Get("histbg"+workname)
     histsig=rt.gDirectory.Get("histsig"+workname)
@@ -65,6 +70,8 @@ for branchname in listofbranches:
           canv.cd()
           histsig.SetLineColor(rt.kRed)
           histbg.SetLineColor(rt.kAzure)
+          histbg.SetTitle("background")
+          histsig.SetTitle("signal")
           if histsig.GetMaximum()< histbg.GetMaximum():
               histsig.SetMaximum(1.05*histbg.GetMaximum())
           histsig.Draw()
@@ -73,9 +80,11 @@ for branchname in listofbranches:
           canv.Update()
           canv.BuildLegend()
           canv.Update()
-#          canv.Print("overviewplot_"+workname+".root")
-#          canv.Print("overviewplot_"+workname+".pdf")
-          canv.Print("overviewplot_"+workname+".png")
+          canv.Print(dirname+"/overviewplot_"+workname+".png")
+    probhist1.Delete()
+    probhist2.Delete()
+    histsig.Delete()
+    histbg.Delete()
     
 print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
 print("variable ranking:")

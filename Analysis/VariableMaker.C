@@ -214,6 +214,7 @@ int createVarOutTree(TChain* tree, TString outFileName){
     subLeadEta_Jet.clear();
     diffEta_Lep.clear();
     diffEta_Jet.clear();
+    diffD0_Lep.clear();
     ////////////////////////////
     Phi_Lep.clear();
     Phi_El.clear();
@@ -251,6 +252,7 @@ int createVarOutTree(TChain* tree, TString outFileName){
     subLeadIso_El.clear();
     subLeadIso_Mu.clear();
     diffPhi_Lep.clear();
+      diffIso_Lep.clear();
     ////////////////////////////////////////////////  
     Met.clear();
     MetLepJet.clear();
