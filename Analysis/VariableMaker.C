@@ -1,3 +1,10 @@
+#include <iostream>
+#include <cmath>
+#include "TROOT.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TLorentzVector.h"
+
 int createVarOutTree(TChain* tree, TString outFileName){
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
@@ -101,15 +108,25 @@ int createVarOutTree(TChain* tree, TString outFileName){
   return SelectedEvents;
 }
 
-void execute() {
+void runononesample(TString chainpath, TString outputname){
+    TChain *sigChain = new TChain("SelectedObjects");
+    sigChain->Add(chainpath);
+    
+
+    cout<<createVarOutTree(sigChain, outputname)<<" events selected from "<<sigChain->GetEntries()<<" SIGNAL events'"<<endl;
+    
+    return;
+}
+void execute(TString sigchainpath="./Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root", TString backgroundchainpath="./Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
 
   TChain *sigChain = new TChain("SelectedObjects");
-  sigChain->Add("./Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root");
+  sigChain->Add(sigchainpath);
 
   TChain *bkgChain = new TChain("SelectedObjects");
-  bkgChain->Add("./Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root");
+  bkgChain->Add(backgroundchainpath);
 
   cout<<createVarOutTree(sigChain, "sigVar.root")<<" events selected from "<<sigChain->GetEntries()<<" SIGNAL events'"<<endl;
   cout<<createVarOutTree(bkgChain, "bkgVar.root")<<" events selected from "<<bkgChain->GetEntries()<<" SIGNAL events'"<<endl;
 
+    return;
 }
