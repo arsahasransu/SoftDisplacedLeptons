@@ -97,8 +97,10 @@ for rank in ranking:
 # now do this in 2D:
 print("+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-")
 
-print("2D correlations (calculating)")
+print("2D correlations (press enter to continue)")
 correlationranking=[[]]
+
+input("Press Enter to continue...")
 
 perm = permutations(listofbranches,2)
 for p1 in list(perm):
