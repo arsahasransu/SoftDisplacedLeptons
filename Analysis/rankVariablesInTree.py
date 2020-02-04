@@ -42,6 +42,7 @@ for branchname in listofbranches:
     histbg= rt.TH1D("histbg"+workname,"",NBINS,min,max)
     histbg.Sumw2()
     histbg.SetXTitle(workname)
+    probhist1=histsig.Clone("probhist1"+workname)
     drawcommand = workname + ">>"+histsig.GetName()+"("+str(NBINS)+","+str(min)+","+str(max)+")"
     sigtree.Draw(drawcommand)
 #    print(drawcommand)
@@ -60,9 +61,9 @@ for branchname in listofbranches:
     print(workname," comparison, probability overlap:")
     histsig.Scale(1./histsig.GetSum())
     histbg.Scale(1./histbg.GetSum())
-    probhist1=histsig.Clone("probhist1"+workname)
-    probhist2=histbg.Clone("probhist2"+workname)
-    probhist1.Multiply(probhist2)
+    for ibin in range(NBINS+1):
+        probhist1.SetBinContent(ibin,rt.TMath.Min(histsig.GetBinContent(ibin),histbg.GetBinContent(ibin)))
+        probhist1.SetBinError(ibin,rt.TMath.Max(histsig.GetBinError(ibin),histbg.GetBinError(ibin)))
     print("overlap probability: ",probhist1.GetSum())
     rankworker=[round(probhist1.GetSum(),4),workname]
     ranking.append(rankworker)
@@ -70,8 +71,8 @@ for branchname in listofbranches:
           canv.cd()
           histsig.SetLineColor(rt.kRed)
           histbg.SetLineColor(rt.kAzure)
-          histbg.SetTitle("background")
-          histsig.SetTitle("signal")
+          histbg.SetName("background")
+          histsig.SetName("signal")
           if histsig.GetMaximum()< histbg.GetMaximum():
               histsig.SetMaximum(1.05*histbg.GetMaximum())
           histsig.Draw()
@@ -82,7 +83,6 @@ for branchname in listofbranches:
           canv.Update()
           canv.Print(dirname+"/overviewplot_"+workname+".png")
     probhist1.Delete()
-    probhist2.Delete()
     histsig.Delete()
     histbg.Delete()
     
