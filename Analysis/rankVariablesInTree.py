@@ -19,23 +19,35 @@ for branchname in listofbranches:
 #    print(branchname)
     workname=branchname.GetName()
 #    print(workname)
-    min=sigtree.GetMinimum(workname)
-    if bgtree.GetMinimum(workname) < min :
-        min = bgtree.GetMinimum(workname)
-    max=sigtree.GetMaximum(workname)
-    if bgtree.GetMaximum(workname) > max :
-        max = bgtree.GetMaximum(workname)
-#    print("checking out axis ranges etc...",min,max)
-    histsig = rt.TH1D("histsig_"+workname,"",20,min,max)
+    min=0
+    max=1
+    sigtree.Draw(workname+">>htemp"+workname)
+    htemp = rt.gDirectory.Get("htemp"+workname)
+    min =htemp.GetXaxis().GetXmin()
+    max = htemp.GetXaxis().GetXmax()
+    print(workname, htemp.GetXaxis().GetXmin() , htemp.GetXaxis().GetXmax(), min, max )
+    if min > htemp.GetXaxis().GetXmin() :
+        min = htemp.GetXaxis().GetXmin()
+    if max < htemp.GetXaxis().GetXmax() :
+        max = htemp.GetXaxis().GetXmax()
+    print("checking out axis ranges etc...",min,max)
+    histsig = rt.TH1D("histsig"+workname,"",20,min,max)
     histsig.Sumw2()
-    histbg=histsig.Clone("histbg_"+workname)
-    sigtree.Draw(workname+">>histsig_"+workname)
-    bgtree.Draw(workname+">>histbg_"+workname)
-#    print("now histos are filled")
-    histbg.SetXTitle(workname)
     histsig.SetXTitle(workname)
+    histbg= rt.TH1D("histbg"+workname,"",20,min,max)
+    histbg.Sumw2()
+    histbg.SetXTitle(workname)
+    drawcommand = workname + ">>"+histsig.GetName()+"(20,"+str(min)+","+str(max)+")"
+    sigtree.Draw(drawcommand)
+    print(drawcommand)
+    drawcommand = workname + ">>"+histbg.GetName()+"(20,"+str(min)+","+str(max)+")"
+    print(drawcommand)
+    bgtree.Draw(drawcommand)
+    histbg=rt.gDirectory.Get("histbg"+workname)
+    histsig=rt.gDirectory.Get("histsig"+workname)
+#    print("now histos are filled")
     if histbg.GetSum()*histsig.GetSum()==0 :
-        print("histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events, and integrals ",histsig.GetSum()," ",histbg.GetSum()," exiting")
+        print("histograms of ",workname, " " ,histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events, and integrals ",histsig.GetSum()," ",histbg.GetSum()," exiting")
         continue
     
 #    print("histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events")
@@ -88,8 +100,8 @@ for p1 in list(perm):
     max2=sigtree.GetMaximum(workname2)
     workhist = rt.TH2D("workhist"+workname1+workname2,"",40,min1,max1,40,min2,min2)
     workhistbg=workhist.Clone("workhistbg"+workname1+workname2)
-    sigtree.Draw(workname1+":"+workname2+">>workhist"+workname1+workname2)
-    bgtree.Draw(workname1+":"+workname2+">>workhistbg"+workname1+workname2)
+    sigtree.Draw(workname1+":"+workname2+">>+workhist"+workname1+workname2)
+    bgtree.Draw(workname1+":"+workname2+">>+workhistbg"+workname1+workname2)
    
     print(workname1,workname2," signal ",round(workhist.GetCorrelationFactor(),4)," background ",round(workhistbg.GetCorrelationFactor(),4))
 
