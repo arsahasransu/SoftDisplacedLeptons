@@ -60,7 +60,12 @@ int createVarOutTree(TChain* tree, TString outFileName){
   std::vector<double> Phi_Lep, Phi_El, Phi_Mu, Phi_Jet, leadPhi_Lep, leadPhi_El, leadPhi_Mu, leadPhi_Jet, subLeadPhi_Lep, subLeadPhi_El, subLeadPhi_Mu, subLeadPhi_Jet, diffPhi_Lep, diffPhi_Jet;
   // From plotVarDisb_Objects_5
   std::vector<double> D0_Lep, D0_El, D0_Mu, leadD0_Lep, leadD0_El, leadD0_Mu, subLeadD0_Lep, subLeadD0_El, subLeadD0_Mu, diffD0_Lep;
-
+  // From plotVarDisb_Objects_6
+  std::vector<double> Iso_Lep, Iso_El, Iso_Mu, leadIso_Lep, leadIso_El, leadIso_Mu, subLeadIso_Lep, subLeadIso_El, subLeadIso_Mu, diffIso_Lep;
+  // From plotVarDisb_Objects_7
+  double Met, MetLepJet, MetLep, MetJet, MetDiffMetLepJet, Met_Phi, MetLepJet_Phi, MetLep_Phi, MetJet_Phi, MetDiffMetLepJet_Phi, Ht, HtLepJet, HtLep, HtJet, HtDiffHtLepJet, DiffMetHt, DiffMetHtLepJet, DiffMetHtLep, DiffMetHtJet;
+  // From plotVarDisb_Objects_8
+    
   auto varOutFile = new TFile(outFileName, "recreate");
   auto varTree = new TTree("varTree", "Input Variables List for Algorithms");
   varTree->Branch("NLep", &NLep);
@@ -122,7 +127,38 @@ int createVarOutTree(TChain* tree, TString outFileName){
   varTree->Branch("leadD0_Mu", &leadD0_Mu);
   varTree->Branch("subLeadD0_Mu", &subLeadD0_Mu);
   varTree->Branch("diffD0_Lep", &diffD0_Lep);
-  
+  ////////////////////////////////////////////////
+  varTree->Branch("Iso_Lep", &Iso_Lep);
+  varTree->Branch("leadIso_Lep", &leadIso_Lep);
+  varTree->Branch("subLeadIso_Lep", &subLeadIso_Lep);
+  varTree->Branch("Iso_El", &Iso_El);
+  varTree->Branch("leadIso_El", &leadIso_El);
+  varTree->Branch("subLeadIso_El", &subLeadIso_El);
+  varTree->Branch("Iso_Mu", &Iso_Mu);
+  varTree->Branch("leadIso_Mu", &leadIso_Mu);
+  varTree->Branch("subLeadIso_Mu", &subLeadIso_Mu);
+  varTree->Branch("diffIso_Lep", &diffIso_Lep);
+  ////////////////////////////////////////////////  
+  varTree->Branch("Met", &Met);
+  varTree->Branch("MetLepJet", &MetLepJet);
+  varTree->Branch("MetLep", &MetLep);
+  varTree->Branch("MetJet", &MetJet);
+  varTree->Branch("MetDiffMetLepJet", &MetDiffMetLepJet);
+  varTree->Branch("Met_Phi", &Met_Phi);
+  varTree->Branch("MetLepJet_Phi", &MetLepJet_Phi);
+  varTree->Branch("MetLep_Phi", &MetLep_Phi);
+  varTree->Branch("MetJet_Phi", &MetJet_Phi);
+  varTree->Branch("MetDiffMetLepJet_Phi", &MetDiffMetLepJet_Phi);
+  varTree->Branch("Ht", &Ht);
+  varTree->Branch("HtLepJet", &HtLepJet);
+  varTree->Branch("HtLep", &HtLep);
+  varTree->Branch("HtJet", &HtJet);
+  varTree->Branch("HtDiffHtLepJet", &HtDiffHtLepJet);
+  varTree->Branch("DiffMetHt", &DiffMetHt);
+  varTree->Branch("DiffMetHtLepJet", &DiffMetHtLepJet);
+  varTree->Branch("DiffMetHtLep", &DiffMetHtLep);
+  varTree->Branch("DiffMetHtJet", &DiffMetHtJet);
+
   // Statistic variable
   int SelectedEvents = 0;
 
@@ -184,7 +220,18 @@ int createVarOutTree(TChain* tree, TString outFileName){
     subLeadD0_El.clear();
     subLeadD0_Mu.clear();
     diffPhi_Lep.clear();
-
+    ////////////////////////////
+    Iso_Lep.clear();
+    Iso_El.clear();
+    Iso_Mu.clear();
+    leadIso_Lep.clear();
+    leadIso_El.clear();
+    leadIso_Mu.clear();
+    subLeadIso_Lep.clear();
+    subLeadIso_El.clear();
+    subLeadIso_Mu.clear();
+    diffPhi_Lep.clear();
+    
     if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
     
     tree->GetEntry(evtCtr);
@@ -234,11 +281,12 @@ int createVarOutTree(TChain* tree, TString outFileName){
     lep1.SetPtEtaPhiE(PT->at(firstPos), Eta->at(firstPos), Phi->at(firstPos), E->at(firstPos));
     TLorentzVector lep2;
     lep2.SetPtEtaPhiE(PT->at(secondPos), Eta->at(secondPos), Phi->at(secondPos), E->at(secondPos));
-    TLorentzVector lepSum, jetSum, objSum, metVec;
+    TLorentzVector lepSum, jetSum, objSum, metVec, diffObjMet;
     metVec.SetPtEtaPhiM(MET, 0.0, MET_Phi, 0.0);
     lepvec.push_back(&lep1);
     lepvec.push_back(&lep2);
 
+    double htlep=0.0, htjet=0.0, htlepjet=0.0;
     int numGoodJet=0;
     int jetFirstPos = -1;
     int jetSecondPos = -1;
@@ -251,22 +299,26 @@ int createVarOutTree(TChain* tree, TString outFileName){
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
       lepSum += lepSingle;
+      htlep += PT->at(objCtr);
 
       PT_Lep.push_back(PT->at(objCtr));
       Eta_Lep.push_back(Eta->at(objCtr));
       Phi_Lep.push_back(Phi->at(objCtr));
       D0_Lep.push_back(D0->at(objCtr));
+      Iso_Lep.push_back(Iso->at(objCtr));
       if(TMath::Abs(PID->at(objCtr))==11) {
 	PT_Mu.push_back(PT->at(objCtr));
 	Eta_Mu.push_back(Eta->at(objCtr));
 	Phi_Mu.push_back(Phi->at(objCtr));
 	D0_Mu.push_back(D0->at(objCtr));
+	Iso_Mu.push_back(Iso->at(objCtr));
       }
       if(TMath::Abs(PID->at(objCtr))==13) {
 	PT_El.push_back(PT->at(objCtr));
 	Eta_El.push_back(Eta->at(objCtr));
 	Phi_El.push_back(Phi->at(objCtr));
 	D0_El.push_back(D0->at(objCtr));
+	Iso_El.push_back(Iso->at(objCtr));
       }
 
     } // End lepton loop
@@ -283,6 +335,9 @@ int createVarOutTree(TChain* tree, TString outFileName){
     leadD0_Lep.push_back(D0->at(firstPos));
     subLeadD0_Lep.push_back(D0->at(secondPos));
     diffD0_Lep.push_back(TMath::Abs(D0->at(firstPos)-D0->at(secondPos)));
+    leadIso_Lep.push_back(Iso->at(firstPos));
+    subLeadIso_Lep.push_back(Iso->at(secondPos));
+    diffIso_Lep.push_back(TMath::Abs(Iso->at(firstPos)-Iso->at(secondPos)));
     if(TMath::Abs(PID->at(firstPos))==11) {
       leadPT_El.push_back(PT->at(firstPos));
       subLeadPT_Mu.push_back(PT->at(secondPos));      
@@ -292,6 +347,8 @@ int createVarOutTree(TChain* tree, TString outFileName){
       subLeadPhi_Mu.push_back(Phi->at(secondPos));      
       leadD0_El.push_back(D0->at(firstPos));
       subLeadD0_Mu.push_back(D0->at(secondPos));      
+      leadIso_El.push_back(Iso->at(firstPos));
+      subLeadIso_Mu.push_back(Iso->at(secondPos));      
     }
     if(TMath::Abs(PID->at(firstPos))==13) {
       leadPT_Mu.push_back(PT->at(firstPos));
@@ -302,6 +359,8 @@ int createVarOutTree(TChain* tree, TString outFileName){
       subLeadPhi_El.push_back(Phi->at(secondPos));      
       leadD0_Mu.push_back(D0->at(firstPos));
       subLeadD0_El.push_back(D0->at(secondPos));      
+      leadIso_Mu.push_back(Iso->at(firstPos));
+      subLeadIso_El.push_back(Iso->at(secondPos));      
     }
 
     // Loop for jet
@@ -317,6 +376,7 @@ int createVarOutTree(TChain* tree, TString outFileName){
       TLorentzVector jetSingle;
       jetSingle.SetPtEtaPhiM(JetPT->at(jetCtr), JetEta->at(jetCtr), JetPhi->at(jetCtr), JetM->at(jetCtr));
       jetSum += jetSingle;
+      htjet += JetPT->at(jetCtr);
 
       if(jetFirstPos==-1) {
 	jetFirstPos = jetCtr;
@@ -328,6 +388,8 @@ int createVarOutTree(TChain* tree, TString outFileName){
       }
     } // End jet loop
     objSum = lepSum+jetSum;
+    diffObjMet = objSum-metVec;
+    htlepjet = htlep+htjet;
 
     NJet = numGoodJet;
     if(numGoodJet>=1) {
@@ -344,6 +406,33 @@ int createVarOutTree(TChain* tree, TString outFileName){
       diffPhi_Jet.push_back(JetPhi->at(jetFirstPos)-JetPhi->at(jetSecondPos));
     }
 
+    if(MET>20.0) {
+      Met = MET;
+      MetDiffMetLepJet = TMath::Abs(diffObjMet.Pt());
+      Met_Phi = MET_Phi;
+      MetDiffMetLepJet_Phi = diffObjMet.Phi();
+      Ht = HT;
+      HtDiffHtLepJet = TMath::Abs(HT-htlepjet);
+    }
+    
+    MetLepJet = objSum.Pt();
+    MetLep = lepSum.Pt();
+    MetLepJet_Phi = objSum.Phi();
+    MetLep_Phi = lepSum.Phi();
+    HtLepJet = htlepjet;
+    HtLep = htlep;
+    DiffMetHtLepJet = TMath::Abs(objSum.Pt()-htlepjet);
+    DiffMetHtLep = TMath::Abs(lepSum.Pt()-htlep);
+
+    if(numGoodJet!=0) {
+      MetJet = jetSum.Pt();
+      MetJet_Phi = jetSum.Phi();
+      HtJet = htjet;
+      DiffMetHtJet = TMath::Abs(jetSum.Pt()-htjet);
+    }
+
+    if(MET>20.0 && HT>20.0) DiffMetHt = TMath::Abs(MET-HT);
+    
     // Fill the tree with variables from the selected event
     varTree->Fill();
     
