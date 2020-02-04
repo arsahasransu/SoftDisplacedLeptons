@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
+
 #include "TROOT.h"
 #include "TChain.h"
 #include "TFile.h"
@@ -7,7 +9,7 @@
 
 // void function essential for bug-free root compilation
 void VariableMaker(void){
-    return;
+  return;
 }
 
 int createVarOutTree(TChain* tree, TString outFileName){
@@ -51,7 +53,13 @@ int createVarOutTree(TChain* tree, TString outFileName){
   // Define the output file and corresponding branches
   // From plotVarDisb_Objects_2
   double NLep, NEl, NMu, NJet;
-  double PT_Lep, PT_El, PT_Mu, PT_Jet, leadPT_Lep, leadPT_El, leadPT_Mu, leadPT_Jet, subLeadPT_Lep, subLeadPT_El, subLeadPT_Mu, subLeadPT_Jet, diffPT_Lep, diffPT_Jet;
+  std::vector<double> PT_Lep, PT_El, PT_Mu, PT_Jet, leadPT_Lep, leadPT_El, leadPT_Mu, leadPT_Jet, subLeadPT_Lep, subLeadPT_El, subLeadPT_Mu, subLeadPT_Jet, diffPT_Lep, diffPT_Jet;
+  // From plotVarDisb_Objects_3
+  std::vector<double> Eta_Lep, Eta_El, Eta_Mu, Eta_Jet, leadEta_Lep, leadEta_El, leadEta_Mu, leadEta_Jet, subLeadEta_Lep, subLeadEta_El, subLeadEta_Mu, subLeadEta_Jet, diffEta_Lep, diffEta_Jet;
+  // From plotVarDisb_Objects_4
+  std::vector<double> Phi_Lep, Phi_El, Phi_Mu, Phi_Jet, leadPhi_Lep, leadPhi_El, leadPhi_Mu, leadPhi_Jet, subLeadPhi_Lep, subLeadPhi_El, subLeadPhi_Mu, subLeadPhi_Jet, diffPhi_Lep, diffPhi_Jet;
+  // From plotVarDisb_Objects_5
+  std::vector<double> D0_Lep, D0_El, D0_Mu, leadD0_Lep, leadD0_El, leadD0_Mu, subLeadD0_Lep, subLeadD0_El, subLeadD0_Mu, diffD0_Lep;
 
   auto varOutFile = new TFile(outFileName, "recreate");
   auto varTree = new TTree("varTree", "Input Variables List for Algorithms");
@@ -73,12 +81,109 @@ int createVarOutTree(TChain* tree, TString outFileName){
   varTree->Branch("subLeadPT_Jet", &subLeadPT_Jet);
   varTree->Branch("diffPT_Lep", &diffPT_Lep);
   varTree->Branch("diffPT_Jet", &diffPT_Jet);
+  ////////////////////////////////////////////////
+  varTree->Branch("Eta_Lep", &Eta_Lep);
+  varTree->Branch("leadEta_Lep", &leadEta_Lep);
+  varTree->Branch("subLeadEta_Lep", &subLeadEta_Lep);
+  varTree->Branch("Eta_El", &Eta_El);
+  varTree->Branch("leadEta_El", &leadEta_El);
+  varTree->Branch("subLeadEta_El", &subLeadEta_El);
+  varTree->Branch("Eta_Mu", &Eta_Mu);
+  varTree->Branch("leadEta_Mu", &leadEta_Mu);
+  varTree->Branch("subLeadEta_Mu", &subLeadEta_Mu);
+  varTree->Branch("Eta_Jet", &Eta_Jet);
+  varTree->Branch("leadEta_Jet", &leadEta_Jet);
+  varTree->Branch("subLeadEta_Jet", &subLeadEta_Jet);
+  varTree->Branch("diffEta_Lep", &diffEta_Lep);
+  varTree->Branch("diffEta_Jet", &diffEta_Jet);
+  ////////////////////////////////////////////////
+  varTree->Branch("Phi_Lep", &Phi_Lep);
+  varTree->Branch("leadPhi_Lep", &leadPhi_Lep);
+  varTree->Branch("subLeadPhi_Lep", &subLeadPhi_Lep);
+  varTree->Branch("Phi_El", &Phi_El);
+  varTree->Branch("leadPhi_El", &leadPhi_El);
+  varTree->Branch("subLeadPhi_El", &subLeadPhi_El);
+  varTree->Branch("Phi_Mu", &Phi_Mu);
+  varTree->Branch("leadPhi_Mu", &leadPhi_Mu);
+  varTree->Branch("subLeadPhi_Mu", &subLeadPhi_Mu);
+  varTree->Branch("Phi_Jet", &Phi_Jet);
+  varTree->Branch("leadPhi_Jet", &leadPhi_Jet);
+  varTree->Branch("subLeadPhi_Jet", &subLeadPhi_Jet);
+  varTree->Branch("diffPhi_Lep", &diffPhi_Lep);
+  varTree->Branch("diffPhi_Jet", &diffPhi_Jet);
+  ////////////////////////////////////////////////
+  varTree->Branch("D0_Lep", &D0_Lep);
+  varTree->Branch("leadD0_Lep", &leadD0_Lep);
+  varTree->Branch("subLeadD0_Lep", &subLeadD0_Lep);
+  varTree->Branch("D0_El", &D0_El);
+  varTree->Branch("leadD0_El", &leadD0_El);
+  varTree->Branch("subLeadD0_El", &subLeadD0_El);
+  varTree->Branch("D0_Mu", &D0_Mu);
+  varTree->Branch("leadD0_Mu", &leadD0_Mu);
+  varTree->Branch("subLeadD0_Mu", &subLeadD0_Mu);
+  varTree->Branch("diffD0_Lep", &diffD0_Lep);
   
   // Statistic variable
   int SelectedEvents = 0;
 
   // Open Event Loop
   for(int evtCtr=0; evtCtr<tree->GetEntries() /*&& evtCtr<10*/; evtCtr++) {
+
+    PT_Lep.clear();
+    PT_El.clear();
+    PT_Mu.clear();
+    PT_Jet.clear();
+    leadPT_Lep.clear();
+    leadPT_El.clear();
+    leadPT_Mu.clear();
+    leadPT_Jet.clear();
+    subLeadPT_Lep.clear();
+    subLeadPT_El.clear();
+    subLeadPT_Mu.clear();
+    subLeadPT_Jet.clear();
+    diffPT_Lep.clear();
+    diffPT_Jet.clear();
+    ////////////////////////////
+    Eta_Lep.clear();
+    Eta_El.clear();
+    Eta_Mu.clear();
+    Eta_Jet.clear();
+    leadEta_Lep.clear();
+    leadEta_El.clear();
+    leadEta_Mu.clear();
+    leadEta_Jet.clear();
+    subLeadEta_Lep.clear();
+    subLeadEta_El.clear();
+    subLeadEta_Mu.clear();
+    subLeadEta_Jet.clear();
+    diffEta_Lep.clear();
+    diffEta_Jet.clear();
+    ////////////////////////////
+    Phi_Lep.clear();
+    Phi_El.clear();
+    Phi_Mu.clear();
+    Phi_Jet.clear();
+    leadPhi_Lep.clear();
+    leadPhi_El.clear();
+    leadPhi_Mu.clear();
+    leadPhi_Jet.clear();
+    subLeadPhi_Lep.clear();
+    subLeadPhi_El.clear();
+    subLeadPhi_Mu.clear();
+    subLeadPhi_Jet.clear();
+    diffPhi_Lep.clear();
+    diffPhi_Jet.clear();
+    ////////////////////////////
+    D0_Lep.clear();
+    D0_El.clear();
+    D0_Mu.clear();
+    leadD0_Lep.clear();
+    leadD0_El.clear();
+    leadD0_Mu.clear();
+    subLeadD0_Lep.clear();
+    subLeadD0_El.clear();
+    subLeadD0_Mu.clear();
+    diffPhi_Lep.clear();
 
     if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
     
@@ -119,6 +224,10 @@ int createVarOutTree(TChain* tree, TString outFileName){
 
     SelectedEvents++;
 
+    NLep = numGoodLep;
+    NEl = numGoodEl;
+    NMu = numGoodMu;      
+
     // For the selected (e,mu) pair of leptons
     std::vector<TLorentzVector*> lepvec;
     TLorentzVector lep1;
@@ -130,7 +239,6 @@ int createVarOutTree(TChain* tree, TString outFileName){
     lepvec.push_back(&lep1);
     lepvec.push_back(&lep2);
 
-    double st=0.0, htlep=0.0;
     int numGoodJet=0;
     int jetFirstPos = -1;
     int jetSecondPos = -1;
@@ -143,21 +251,72 @@ int createVarOutTree(TChain* tree, TString outFileName){
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
       lepSum += lepSingle;
-      st += TMath::Abs(PT->at(objCtr));
-      htlep += TMath::Abs(PT->at(objCtr));
+
+      PT_Lep.push_back(PT->at(objCtr));
+      Eta_Lep.push_back(Eta->at(objCtr));
+      Phi_Lep.push_back(Phi->at(objCtr));
+      D0_Lep.push_back(D0->at(objCtr));
+      if(TMath::Abs(PID->at(objCtr))==11) {
+	PT_Mu.push_back(PT->at(objCtr));
+	Eta_Mu.push_back(Eta->at(objCtr));
+	Phi_Mu.push_back(Phi->at(objCtr));
+	D0_Mu.push_back(D0->at(objCtr));
+      }
+      if(TMath::Abs(PID->at(objCtr))==13) {
+	PT_El.push_back(PT->at(objCtr));
+	Eta_El.push_back(Eta->at(objCtr));
+	Phi_El.push_back(Phi->at(objCtr));
+	D0_El.push_back(D0->at(objCtr));
+      }
+
     } // End lepton loop
+
+    leadPT_Lep.push_back(PT->at(firstPos));
+    subLeadPT_Lep.push_back(PT->at(secondPos));
+    diffPT_Lep.push_back(TMath::Abs(PT->at(firstPos)-PT->at(secondPos)));
+    leadEta_Lep.push_back(Eta->at(firstPos));
+    subLeadEta_Lep.push_back(Eta->at(secondPos));
+    diffEta_Lep.push_back(TMath::Abs(Eta->at(firstPos)-Eta->at(secondPos)));
+    leadPhi_Lep.push_back(Phi->at(firstPos));
+    subLeadPhi_Lep.push_back(Phi->at(secondPos));
+    diffPhi_Lep.push_back(TMath::Abs(Phi->at(firstPos)-Phi->at(secondPos)));
+    leadD0_Lep.push_back(D0->at(firstPos));
+    subLeadD0_Lep.push_back(D0->at(secondPos));
+    diffD0_Lep.push_back(TMath::Abs(D0->at(firstPos)-D0->at(secondPos)));
+    if(TMath::Abs(PID->at(firstPos))==11) {
+      leadPT_El.push_back(PT->at(firstPos));
+      subLeadPT_Mu.push_back(PT->at(secondPos));      
+      leadEta_El.push_back(Eta->at(firstPos));
+      subLeadEta_Mu.push_back(Eta->at(secondPos));      
+      leadPhi_El.push_back(Phi->at(firstPos));
+      subLeadPhi_Mu.push_back(Phi->at(secondPos));      
+      leadD0_El.push_back(D0->at(firstPos));
+      subLeadD0_Mu.push_back(D0->at(secondPos));      
+    }
+    if(TMath::Abs(PID->at(firstPos))==13) {
+      leadPT_Mu.push_back(PT->at(firstPos));
+      subLeadPT_El.push_back(PT->at(secondPos));      
+      leadEta_Mu.push_back(Eta->at(firstPos));
+      subLeadEta_El.push_back(Eta->at(secondPos));      
+      leadPhi_Mu.push_back(Phi->at(firstPos));
+      subLeadPhi_El.push_back(Phi->at(secondPos));      
+      leadD0_Mu.push_back(D0->at(firstPos));
+      subLeadD0_El.push_back(D0->at(secondPos));      
+    }
 
     // Loop for jet
     for(int jetCtr=0; jetCtr<numJet; jetCtr++) {
       if(JetPT->at(jetCtr)<20) continue;
       if(TMath::Abs(JetEta->at(jetCtr))>2.5) continue;
-      
+
+      PT_Jet.push_back(JetPT->at(jetCtr));
+      Eta_Jet.push_back(JetEta->at(jetCtr));
+      Phi_Jet.push_back(JetPhi->at(jetCtr));
       numGoodJet++;
 
       TLorentzVector jetSingle;
       jetSingle.SetPtEtaPhiM(JetPT->at(jetCtr), JetEta->at(jetCtr), JetPhi->at(jetCtr), JetM->at(jetCtr));
       jetSum += jetSingle;
-      st += TMath::Abs(JetPT->at(jetCtr));
 
       if(jetFirstPos==-1) {
 	jetFirstPos = jetCtr;
@@ -169,6 +328,21 @@ int createVarOutTree(TChain* tree, TString outFileName){
       }
     } // End jet loop
     objSum = lepSum+jetSum;
+
+    NJet = numGoodJet;
+    if(numGoodJet>=1) {
+      leadPT_Jet.push_back(JetPT->at(jetFirstPos));
+      leadEta_Jet.push_back(JetEta->at(jetFirstPos));
+      leadPhi_Jet.push_back(JetPhi->at(jetFirstPos));
+    }
+    if(numGoodJet>=2) {
+      subLeadPT_Jet.push_back(JetPT->at(jetSecondPos));
+      diffPT_Jet.push_back(JetPT->at(jetFirstPos)-JetPT->at(jetSecondPos));
+      subLeadEta_Jet.push_back(JetEta->at(jetSecondPos));
+      diffEta_Jet.push_back(JetEta->at(jetFirstPos)-JetEta->at(jetSecondPos));
+      subLeadPhi_Jet.push_back(JetPhi->at(jetSecondPos));
+      diffPhi_Jet.push_back(JetPhi->at(jetFirstPos)-JetPhi->at(jetSecondPos));
+    }
 
     // Fill the tree with variables from the selected event
     varTree->Fill();
@@ -194,8 +368,8 @@ void runononesample(TString chainpath, TString outputname){
   return;
 }
 
-void execute(TString sigchainpath="./Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
-	     TString backgroundchainpath="./Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
+void execute(TString sigchainpath="../Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
+	     TString backgroundchainpath="../Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
 
   TChain *sigChain = new TChain("SelectedObjects");
   sigChain->Add(sigchainpath);
