@@ -9,6 +9,7 @@
 #include "TMatrixD.h"
 #include "TVector3.h"
 #include "TVectorD.h"
+#include "TMath.h"
 
 // void function essential for bug-free root compilation
 void VariableMaker(void){
@@ -47,6 +48,38 @@ double sphericity(std::vector<TLorentzVector*> lvarray) {
 
   double sphericity = 1.5*(eigenvals[1]+eigenvals[2]);
   return sphericity;
+}
+
+double transversespherocity(std::vector<TLorentzVector*> lvarray) {
+
+  Double_t lowestval = 100000000.0;
+
+  TVector3 workvec;
+  double workerNumerator = 0.0;
+  double workerDenominator = 0.0;
+  TVector3 unitvec;
+
+  for(int vecCtr=0; vecCtr<lvarray.size(); vecCtr++) {
+    TLorentzVector* candvec = lvarray[vecCtr];
+
+    unitvec.SetXYZ(candvec->Px()/candvec->Pt(), candvec->Py()/candvec->Pt(), 0.0);
+    workvec.SetXYZ(0, 0, 0);
+    workerNumerator = 0.0;
+    workerDenominator = 0.0;
+
+    for(int vecCtr2=0; vecCtr2<lvarray.size(); vecCtr2++) {
+      TLorentzVector* workLVvec = lvarray[vecCtr2];
+
+      workerDenominator += workLVvec->Pt();
+      workvec.SetXYZ(workLVvec->Px(), workLVvec->Py(), 0.0);
+      workerNumerator += workvec.Cross(unitvec).Mag();
+
+      lowestval = TMath::Min(lowestval, workerNumerator/workerDenominator);
+    }
+  }
+
+  double spherocity = TMath::Power(lowestval*TMath::Pi(), 2);
+  return spherocity;
 }
 
 // Function to write read from objects and create variables in a Tree
@@ -558,6 +591,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
     MLLMET.push_back(TMath::Abs((lep1+lep2+metVec).M()));
     M.push_back(TMath::Abs((objSum+metVec).M()));
     Sphericity.push_back(sphericity(lepvec));
+    Spherocity.push_back(transversespherocity(lepvec));
     
     // Fill the tree with variables from the selected event
     varTree->Fill();
