@@ -12,7 +12,7 @@ void VariableMaker(void){
   return;
 }
 
-int createVarOutTree(TChain* tree, TString outFileName){
+int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
   double MET, MET_Eta, MET_Phi, HT;
@@ -356,7 +356,14 @@ int createVarOutTree(TChain* tree, TString outFileName){
     for(int objCtr=0; objCtr<lenObj; objCtr++) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
-      
+
+      // Signal control for d0 Region. Uncomment one of them only.
+      //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 && TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
+      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
+
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
       lepSum += lepSingle;
@@ -529,7 +536,7 @@ void runononesample(TString chainpath, TString outputname){
   sigChain->Add(chainpath);
   
   
-  cout<<createVarOutTree(sigChain, outputname)
+  cout<<createVarOutTree(sigChain, outputname, true)
       <<" events selected from "
       <<sigChain->GetEntries()
       <<" SIGNAL events'"<<endl;
@@ -546,12 +553,12 @@ void execute(TString sigchainpath="../Data/DislacedLepton/Objects_sorted_Displac
   TChain *bkgChain = new TChain("SelectedObjects");
   bkgChain->Add(backgroundchainpath);
 
-  cout<<createVarOutTree(sigChain, "sigVar.root")
+  cout<<createVarOutTree(sigChain, "signal.root", true)
       <<" events selected from "
       <<sigChain->GetEntries()
       <<" SIGNAL events'"<<endl;
   
-  cout<<createVarOutTree(bkgChain, "bkgVar.root")
+  cout<<createVarOutTree(bkgChain, "background.root", false)
       <<" events selected from "
       <<bkgChain->GetEntries()
       <<" BACKGROUND events'"<<endl;
