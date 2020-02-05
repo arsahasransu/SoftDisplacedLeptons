@@ -25,7 +25,7 @@ TMatrixD makeMomentumTensor3D(std::vector<TLorentzVector*> lvarray) {
     for(int jj=0; jj<3; jj++) {
       normaliser=0.0;
       total[ii][jj]=0.0;
-      for(int vec=0; vec<lvarray.size(); vec++) {
+      for(unsigned int vec=0; vec<lvarray.size(); vec++) {
 	vect = lvarray[vec]->Vect();
 	total[ii][jj] += vect[ii]*vect[jj];
 	normaliser += vect.Mag()*vect.Mag();
