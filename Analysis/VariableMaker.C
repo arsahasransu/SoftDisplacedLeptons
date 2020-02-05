@@ -610,7 +610,7 @@ void runononesample(TString chainpath, TString outputname, bool isSignal){
   
     string typeofdata= "background";
     if (isSignal)
-        typeofdata="signal"
+        typeofdata="signal";
     
   cout<<createVarOutTree(sigChain, outputname, isSignal)
       <<" events selected from "
