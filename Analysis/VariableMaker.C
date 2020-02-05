@@ -6,12 +6,50 @@
 #include "TChain.h"
 #include "TFile.h"
 #include "TLorentzVector.h"
+#include "TMatrixD.h"
+#include "TVector3.h"
+#include "TVectorD.h"
 
 // void function essential for bug-free root compilation
 void VariableMaker(void){
   return;
 }
 
+// Functions required for computing sphericity and spherocity
+TMatrixD makeMomentumTensor3D(std::vector<TLorentzVector*> lvarray) {
+  TMatrixD total(3,3);
+  double normaliser = 0.0;
+  TVector3 vect;
+
+  for(int ii=0; ii<3; ii++) {
+    for(int jj=0; jj<3; jj++) {
+      normaliser=0.0;
+      total[ii][jj]=0.0;
+      for(int vec=0; vec<lvarray.size(); vec++) {
+	vect = lvarray[vec]->Vect();
+	total[ii][jj] += vect[ii]*vect[jj];
+	normaliser += vect.Mag()*vect.Mag();
+      }
+      if(normaliser>0) {
+	total[ii][jj] /= normaliser;
+      }
+    }
+  }
+  return total;
+}
+
+// Functions required for computing sphericity and spherocity
+double sphericity(std::vector<TLorentzVector*> lvarray) {
+  TMatrixD total = makeMomentumTensor3D(lvarray);
+
+  TVectorD eigenvals;
+  auto eigenvectors = total.EigenVectors(eigenvals);
+
+  double sphericity = 1.5*(eigenvals[1]+eigenvals[2]);
+  return sphericity;
+}
+
+// Function to write read from objects and create variables in a Tree
 int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
@@ -519,6 +557,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
     MLL.push_back(TMath::Abs((lep1+lep2).M()));
     MLLMET.push_back(TMath::Abs((lep1+lep2+metVec).M()));
     M.push_back(TMath::Abs((objSum+metVec).M()));
+    Sphericity.push_back(sphericity(lepvec));
     
     // Fill the tree with variables from the selected event
     varTree->Fill();
