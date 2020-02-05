@@ -59,7 +59,7 @@ double transversespherocity(std::vector<TLorentzVector*> lvarray) {
   double workerDenominator = 0.0;
   TVector3 unitvec;
 
-  for(int vecCtr=0; vecCtr<lvarray.size(); vecCtr++) {
+  for(unsigned int vecCtr=0; vecCtr<lvarray.size(); vecCtr++) {
     TLorentzVector* candvec = lvarray[vecCtr];
 
     unitvec.SetXYZ(candvec->Px()/candvec->Pt(), candvec->Py()/candvec->Pt(), 0.0);
@@ -67,7 +67,7 @@ double transversespherocity(std::vector<TLorentzVector*> lvarray) {
     workerNumerator = 0.0;
     workerDenominator = 0.0;
 
-    for(int vecCtr2=0; vecCtr2<lvarray.size(); vecCtr2++) {
+    for(unsigned int vecCtr2=0; vecCtr2<lvarray.size(); vecCtr2++) {
       TLorentzVector* workLVvec = lvarray[vecCtr2];
 
       workerDenominator += workLVvec->Pt();
