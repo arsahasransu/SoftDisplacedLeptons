@@ -603,16 +603,20 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   return SelectedEvents;
 }
 
-void runononesample(TString chainpath, TString outputname){
+void runononesample(TString chainpath, TString outputname, bool isSignal){
 
   TChain *sigChain = new TChain("SelectedObjects");
   sigChain->Add(chainpath);
   
-  
-  cout<<createVarOutTree(sigChain, outputname, true)
+    string typeofdata= "background";
+    if (isSignal)
+        typeofdata="signal"
+    
+  cout<<createVarOutTree(sigChain, outputname, isSignal)
       <<" events selected from "
       <<sigChain->GetEntries()
-      <<" SIGNAL events'"<<endl;
+    
+      <<" "<<typeofdata<< " events'"<<endl;
     
   return;
 }
