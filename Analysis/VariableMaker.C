@@ -346,6 +346,13 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
 
+      // Signal control for d0 Region. Uncomment one of them only.
+      //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 && TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
+      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
+
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
       if(TMath::Abs(PID->at(objCtr))==13) numGoodMu++;
@@ -394,13 +401,6 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
     for(int objCtr=0; objCtr<lenObj; objCtr++) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
-
-      // Signal control for d0 Region. Uncomment one of them only.
-      //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 && TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
-      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
 
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
