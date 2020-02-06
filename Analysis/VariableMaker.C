@@ -73,12 +73,11 @@ double transversespherocity(std::vector<TLorentzVector*> lvarray) {
       workerDenominator += workLVvec->Pt();
       workvec.SetXYZ(workLVvec->Px(), workLVvec->Py(), 0.0);
       workerNumerator += workvec.Cross(unitvec).Mag();
-
-      lowestval = TMath::Min(lowestval, workerNumerator/workerDenominator);
     }
+    lowestval = TMath::Min(lowestval, workerNumerator/workerDenominator);
   }
 
-  double spherocity = TMath::Power(lowestval*TMath::Pi(), 2);
+  double spherocity = TMath::Power(lowestval*TMath::Pi()*0.5, 2);
   return spherocity;
 }
 
@@ -248,7 +247,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   //varTree->Branch("MLLMET", &MLLMET);
   //varTree->Branch("M", &M);
   varTree->Branch("Sphericity", &Sphericity);
-  //varTree->Branch("Spherocity", &Spherocity);
+  varTree->Branch("Spherocity", &Spherocity);
   
   // Statistic variable
   int SelectedEvents = 0;
