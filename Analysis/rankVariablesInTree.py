@@ -114,8 +114,11 @@ for p1 in list(perm):
     workhistbg=workhist.Clone("workhistbg"+workname1+workname2)
     sigtree.Draw(workname1+":"+workname2+">>+workhist"+workname1+workname2)
     bgtree.Draw(workname1+":"+workname2+">>+workhistbg"+workname1+workname2)
-   
-    print(workname1,workname2," signal ",round(workhist.GetCorrelationFactor(),4)," background ",round(workhistbg.GetCorrelationFactor(),4))
+
+    sigcor = round(workhist.GetCorrelationFactor(),4)
+    bkgcor= round(workhistbg.GetCorrelationFactor(),4)
+    if sigcor>0.7 and bkgcor>0.7:
+        print(workname1,workname2," signal ",sigcor," background ",bkgcor)
 
 
 input("Press Enter to continue...")
