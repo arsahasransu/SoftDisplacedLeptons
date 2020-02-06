@@ -156,10 +156,10 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   varTree->Branch("subLeadPT_Mu", &subLeadPT_Mu);
   varTree->Branch("NJet", &NJet);
   varTree->Branch("PT_Jet", &PT_Jet);
-  varTree->Branch("leadPT_Jet", &leadPT_Jet);
-  varTree->Branch("subLeadPT_Jet", &subLeadPT_Jet);
+  //varTree->Branch("leadPT_Jet", &leadPT_Jet);
+  //varTree->Branch("subLeadPT_Jet", &subLeadPT_Jet);
   varTree->Branch("diffPT_Lep", &diffPT_Lep);
-  varTree->Branch("diffPT_Jet", &diffPT_Jet);
+  //varTree->Branch("diffPT_Jet", &diffPT_Jet);
   ////////////////////////////////////////////////
   varTree->Branch("Eta_Lep", &Eta_Lep);
   varTree->Branch("leadEta_Lep", &leadEta_Lep);
@@ -171,10 +171,10 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   varTree->Branch("leadEta_Mu", &leadEta_Mu);
   varTree->Branch("subLeadEta_Mu", &subLeadEta_Mu);
   varTree->Branch("Eta_Jet", &Eta_Jet);
-  varTree->Branch("leadEta_Jet", &leadEta_Jet);
-  varTree->Branch("subLeadEta_Jet", &subLeadEta_Jet);
+  //varTree->Branch("leadEta_Jet", &leadEta_Jet);
+  //varTree->Branch("subLeadEta_Jet", &subLeadEta_Jet);
   varTree->Branch("diffEta_Lep", &diffEta_Lep);
-  varTree->Branch("diffEta_Jet", &diffEta_Jet);
+  //varTree->Branch("diffEta_Jet", &diffEta_Jet);
   ////////////////////////////////////////////////
   varTree->Branch("Phi_Lep", &Phi_Lep);
   varTree->Branch("leadPhi_Lep", &leadPhi_Lep);
@@ -186,32 +186,32 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   varTree->Branch("leadPhi_Mu", &leadPhi_Mu);
   varTree->Branch("subLeadPhi_Mu", &subLeadPhi_Mu);
   varTree->Branch("Phi_Jet", &Phi_Jet);
-  varTree->Branch("leadPhi_Jet", &leadPhi_Jet);
-  varTree->Branch("subLeadPhi_Jet", &subLeadPhi_Jet);
+  //varTree->Branch("leadPhi_Jet", &leadPhi_Jet);
+  //varTree->Branch("subLeadPhi_Jet", &subLeadPhi_Jet);
   varTree->Branch("diffPhi_Lep", &diffPhi_Lep);
-  varTree->Branch("diffPhi_Jet", &diffPhi_Jet);
+  //varTree->Branch("diffPhi_Jet", &diffPhi_Jet);
   ////////////////////////////////////////////////
   varTree->Branch("D0_Lep", &D0_Lep);
-  varTree->Branch("leadD0_Lep", &leadD0_Lep);
-  varTree->Branch("subLeadD0_Lep", &subLeadD0_Lep);
+  //varTree->Branch("leadD0_Lep", &leadD0_Lep);
+  //varTree->Branch("subLeadD0_Lep", &subLeadD0_Lep);
   varTree->Branch("D0_El", &D0_El);
-  varTree->Branch("leadD0_El", &leadD0_El);
-  varTree->Branch("subLeadD0_El", &subLeadD0_El);
+  //varTree->Branch("leadD0_El", &leadD0_El);
+  //varTree->Branch("subLeadD0_El", &subLeadD0_El);
   varTree->Branch("D0_Mu", &D0_Mu);
-  varTree->Branch("leadD0_Mu", &leadD0_Mu);
-  varTree->Branch("subLeadD0_Mu", &subLeadD0_Mu);
-  varTree->Branch("diffD0_Lep", &diffD0_Lep);
+  //varTree->Branch("leadD0_Mu", &leadD0_Mu);
+  //varTree->Branch("subLeadD0_Mu", &subLeadD0_Mu);
+  //varTree->Branch("diffD0_Lep", &diffD0_Lep);
   ////////////////////////////////////////////////
-  varTree->Branch("Iso_Lep", &Iso_Lep);
-  varTree->Branch("leadIso_Lep", &leadIso_Lep);
-  varTree->Branch("subLeadIso_Lep", &subLeadIso_Lep);
-  varTree->Branch("Iso_El", &Iso_El);
-  varTree->Branch("leadIso_El", &leadIso_El);
-  varTree->Branch("subLeadIso_El", &subLeadIso_El);
-  varTree->Branch("Iso_Mu", &Iso_Mu);
-  varTree->Branch("leadIso_Mu", &leadIso_Mu);
-  varTree->Branch("subLeadIso_Mu", &subLeadIso_Mu);
-  varTree->Branch("diffIso_Lep", &diffIso_Lep);
+  //varTree->Branch("Iso_Lep", &Iso_Lep);
+  //varTree->Branch("leadIso_Lep", &leadIso_Lep);
+  //varTree->Branch("subLeadIso_Lep", &subLeadIso_Lep);
+  //varTree->Branch("Iso_El", &Iso_El);
+  //varTree->Branch("leadIso_El", &leadIso_El);
+  //varTree->Branch("subLeadIso_El", &subLeadIso_El);
+  //varTree->Branch("Iso_Mu", &Iso_Mu);
+  //varTree->Branch("leadIso_Mu", &leadIso_Mu);
+  //varTree->Branch("subLeadIso_Mu", &subLeadIso_Mu);
+  //varTree->Branch("diffIso_Lep", &diffIso_Lep);
   ////////////////////////////////////////////////  
   varTree->Branch("Met", &Met);
   varTree->Branch("MetLepJet", &MetLepJet);
