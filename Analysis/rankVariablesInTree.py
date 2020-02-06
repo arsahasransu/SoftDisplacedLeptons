@@ -1,7 +1,7 @@
 import os, sys
 import ROOT as rt
 import math
-from itertools import permutations
+from itertools import combinations
 
 # small macro that just takes all branches in a flat tree and calculates the ranking
 
@@ -60,17 +60,19 @@ for branchname in listofbranches:
   
     # Normalisation to Luminosity
     # N_bkg = 1937.09 # CR2
-    # N_bkg = 3646.28 # SR1
+    N_bkg = 3646.28 # SR1
     # N_bkg = 569.73 # SR2
-    N_bkg = 22.79 # SR3
+    # N_bkg = 22.79 # SR3
     # N_sig = 6.24*28976*0.000001 # CR2
-    # N_sig = 6.24*28976*0.000001 # SR1
+    N_sig = 6.24*28976*0.000001 # SR1
     # N_sig = 6.24*19077*0.000001 # SR2
-    N_sig =  6.24*10860*0.000001 # SR3
+    # N_sig =  6.24*10860*0.000001 # SR3
 
     print(workname," comparison, probability overlap:")
-    histsig.Scale(N_sig)
-    histbg.Scale(N_bkg)
+    #histsig.Scale(N_sig)
+    #histbg.Scale(N_bkg)
+    histsig.Scale(1./histsig.GetSum())
+    histbg.Scale(1./histbg.GetSum())
 
     for ibin in range(NBINS+1):
         probhist1.SetBinContent(ibin,rt.TMath.Min(histsig.GetBinContent(ibin),histbg.GetBinContent(ibin)))
@@ -113,7 +115,7 @@ correlationranking=[[]]
 
 input("Press Enter to continue...")
 
-perm = permutations(listofbranches,2)
+perm = combinations(listofbranches,2)
 for p1 in list(perm):
     workname1=p1[0].GetName()
     workname2=p1[1].GetName()
@@ -128,8 +130,8 @@ for p1 in list(perm):
 
     sigcor = round(workhist.GetCorrelationFactor(),4)
     bkgcor= round(workhistbg.GetCorrelationFactor(),4)
-    if sigcor>0.7 and bkgcor>0.7:
-        print(workname1,workname2," signal ",sigcor," background ",bkgcor)
+    #if abs(bkgcor)>0.3: # Added control for printing with condition on value of co-relation
+    print(workname1,workname2," signal ",sigcor," background ",bkgcor)
 
 
 input("Press Enter to continue...")

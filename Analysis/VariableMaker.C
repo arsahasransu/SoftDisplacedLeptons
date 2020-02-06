@@ -147,18 +147,18 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   //varTree->Branch("leadPT_Lep", &leadPT_Lep);
   //varTree->Branch("subLeadPT_Lep", &subLeadPT_Lep);
   //varTree->Branch("NEl", &NEl);
-  varTree->Branch("PT_El", &PT_El);
+  //varTree->Branch("PT_El", &PT_El);
   //varTree->Branch("leadPT_El", &leadPT_El);
   //varTree->Branch("subLeadPT_El", &subLeadPT_El);
   //varTree->Branch("NMu", &NMu);
-  varTree->Branch("PT_Mu", &PT_Mu);
+  //varTree->Branch("PT_Mu", &PT_Mu);
   //varTree->Branch("leadPT_Mu", &leadPT_Mu);
   //varTree->Branch("subLeadPT_Mu", &subLeadPT_Mu);
   //varTree->Branch("NJet", &NJet);
   //varTree->Branch("PT_Jet", &PT_Jet);
   //varTree->Branch("leadPT_Jet", &leadPT_Jet);
   //varTree->Branch("subLeadPT_Jet", &subLeadPT_Jet);
-  varTree->Branch("diffPT_Lep", &diffPT_Lep);
+  //varTree->Branch("diffPT_Lep", &diffPT_Lep);
   //varTree->Branch("diffPT_Jet", &diffPT_Jet);
   ////////////////////////////////////////////////
   //varTree->Branch("Eta_Lep", &Eta_Lep);
@@ -170,25 +170,25 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   varTree->Branch("Eta_Mu", &Eta_Mu);
   //varTree->Branch("leadEta_Mu", &leadEta_Mu);
   //varTree->Branch("subLeadEta_Mu", &subLeadEta_Mu);
-  varTree->Branch("Eta_Jet", &Eta_Jet);
+  //varTree->Branch("Eta_Jet", &Eta_Jet);
   //varTree->Branch("leadEta_Jet", &leadEta_Jet);
   //varTree->Branch("subLeadEta_Jet", &subLeadEta_Jet);
-  varTree->Branch("diffEta_Lep", &diffEta_Lep);
+  //varTree->Branch("diffEta_Lep", &diffEta_Lep);
   //varTree->Branch("diffEta_Jet", &diffEta_Jet);
   ////////////////////////////////////////////////
   //varTree->Branch("Phi_Lep", &Phi_Lep);
   //varTree->Branch("leadPhi_Lep", &leadPhi_Lep);
   //varTree->Branch("subLeadPhi_Lep", &subLeadPhi_Lep);
-  varTree->Branch("Phi_El", &Phi_El);
+  //varTree->Branch("Phi_El", &Phi_El);
   //varTree->Branch("leadPhi_El", &leadPhi_El);
   //varTree->Branch("subLeadPhi_El", &subLeadPhi_El);
-  varTree->Branch("Phi_Mu", &Phi_Mu);
+  //varTree->Branch("Phi_Mu", &Phi_Mu);
   //varTree->Branch("leadPhi_Mu", &leadPhi_Mu);
   //varTree->Branch("subLeadPhi_Mu", &subLeadPhi_Mu);
   //varTree->Branch("Phi_Jet", &Phi_Jet);
   //varTree->Branch("leadPhi_Jet", &leadPhi_Jet);
   //varTree->Branch("subLeadPhi_Jet", &subLeadPhi_Jet);
-  varTree->Branch("diffPhi_Lep", &diffPhi_Lep);
+  //varTree->Branch("diffPhi_Lep", &diffPhi_Lep);
   //varTree->Branch("diffPhi_Jet", &diffPhi_Jet);
   ////////////////////////////////////////////////
   //varTree->Branch("D0_Lep", &D0_Lep);
@@ -215,40 +215,40 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   ////////////////////////////////////////////////  
   //varTree->Branch("Met", &Met);
   //varTree->Branch("MetLepJet", &MetLepJet);
-  varTree->Branch("MetLep", &MetLep);
+  //varTree->Branch("MetLep", &MetLep);
   //varTree->Branch("MetJet", &MetJet);
-  varTree->Branch("MetDiffMetLepJet", &MetDiffMetLepJet);
-  varTree->Branch("Met_Phi", &Met_Phi);
+  //varTree->Branch("MetDiffMetLepJet", &MetDiffMetLepJet);
+  //varTree->Branch("Met_Phi", &Met_Phi);
   //varTree->Branch("MetLepJet_Phi", &MetLepJet_Phi);
-  varTree->Branch("MetLep_Phi", &MetLep_Phi);
+  //varTree->Branch("MetLep_Phi", &MetLep_Phi);
   //varTree->Branch("MetJet_Phi", &MetJet_Phi);
-  varTree->Branch("MetDiffMetLepJet_Phi", &MetDiffMetLepJet_Phi);
-  varTree->Branch("Ht", &Ht);
+  //varTree->Branch("MetDiffMetLepJet_Phi", &MetDiffMetLepJet_Phi);
+  //varTree->Branch("Ht", &Ht);
   //varTree->Branch("HtLepJet", &HtLepJet);
-  varTree->Branch("HtLep", &HtLep);
+  //varTree->Branch("HtLep", &HtLep);
   //varTree->Branch("HtJet", &HtJet);
   varTree->Branch("HtDiffHtLepJet", &HtDiffHtLepJet);
-  varTree->Branch("DiffMetHt", &DiffMetHt);
+  //varTree->Branch("DiffMetHt", &DiffMetHt);
   //varTree->Branch("DiffMetHtLepJet", &DiffMetHtLepJet);
-  varTree->Branch("DiffMetHtLep", &DiffMetHtLep);
+  //varTree->Branch("DiffMetHtLep", &DiffMetHtLep);
   //varTree->Branch("DiffMetHtJet", &DiffMetHtJet);
   ////////////////////////////////////////////////  
   varTree->Branch("dRLL", &dRLL);
-  varTree->Branch("dEtaLepJet", &dEtaLepJet);
-  varTree->Branch("dPhiLepJet", &dPhiLepJet);
-  varTree->Branch("dRLepJet", &dRLepJet);
+  //varTree->Branch("dEtaLepJet", &dEtaLepJet);
+  //varTree->Branch("dPhiLepJet", &dPhiLepJet);
+  //varTree->Branch("dRLepJet", &dRLepJet);
   varTree->Branch("dPhiLepMET", &dPhiLepMET);
   varTree->Branch("dPhiLepMETSelObj", &dPhiLepMETSelObj);
   ////////////////////////////////////////////////  
   varTree->Branch("YDelpObj", &YDelpObj);
   varTree->Branch("YUserObj", &YUserObj);
-  varTree->Branch("ST", &ST);
+  //varTree->Branch("ST", &ST);
   varTree->Branch("alphaT", &alphaT);
-  varTree->Branch("MLL", &MLL);
-  varTree->Branch("MLLMET", &MLLMET);
-  varTree->Branch("M", &M);
+  //varTree->Branch("MLL", &MLL);
+  //varTree->Branch("MLLMET", &MLLMET);
+  //varTree->Branch("M", &M);
   varTree->Branch("Sphericity", &Sphericity);
-  varTree->Branch("Spherocity", &Spherocity);
+  //varTree->Branch("Spherocity", &Spherocity);
   
   // Statistic variable
   int SelectedEvents = 0;
@@ -382,9 +382,9 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
       // Signal control for d0 Region. Uncomment one of them only.
       //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
       //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
+      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
       //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
-      if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
 
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
