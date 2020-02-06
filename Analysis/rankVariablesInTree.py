@@ -58,9 +58,20 @@ for branchname in listofbranches:
     
 #    print("histograms ",histsig.GetName()," and ", histbg.GetName()," with ", histsig.GetEntries()," and ",histbg.GetEntries()," events")
   
+    # Normalisation to Luminosity
+    # N_bkg = 1937.09 # CR2
+    # N_bkg = 3646.28 # SR1
+    # N_bkg = 569.73 # SR2
+    N_bkg = 22.79 # SR3
+    # N_sig = 6.24*28976*0.000001 # CR2
+    # N_sig = 6.24*28976*0.000001 # SR1
+    # N_sig = 6.24*19077*0.000001 # SR2
+    N_sig =  6.24*10860*0.000001 # SR3
+
     print(workname," comparison, probability overlap:")
-    histsig.Scale(1./histsig.GetSum())
-    histbg.Scale(1./histbg.GetSum())
+    histsig.Scale(N_sig)
+    histbg.Scale(N_bkg)
+
     for ibin in range(NBINS+1):
         probhist1.SetBinContent(ibin,rt.TMath.Min(histsig.GetBinContent(ibin),histbg.GetBinContent(ibin)))
         probhist1.SetBinError(ibin,rt.TMath.Max(histsig.GetBinError(ibin),histbg.GetBinError(ibin)))

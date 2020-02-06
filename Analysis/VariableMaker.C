@@ -381,10 +381,10 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
 
       // Signal control for d0 Region. Uncomment one of them only.
       //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 && TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
-      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
+      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
       //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
+      if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
 
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
