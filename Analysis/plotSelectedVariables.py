@@ -5,13 +5,16 @@ import math
 # Read the variables to chain
 sigTree=rt.TChain("varTree","varTree")
 bgTree=rt.TChain("varTree","varTree")
-sigTree.Add("signal.root")
-bgTree.Add("background.root")
+sigTree.Add("signal_SR2.root")
+bgTree.Add("background_SR2.root")
 print("Now filled trees:",sigTree.GetEntries(),bgTree.GetEntries())
 
 # Create a canvas and list of variables
 canv = rt.TCanvas("canv","canv")
-varList = ["YDelpObj"]
+varList = ["YDelpObj", "dRLL", "dPhiLepMET",
+           "Sphericity", "Spherocity", "YUserObj",
+           "dPhiLepMETSelObj", "alphaT", "HtDiffHtLepJet",
+           "Eta_El", "Eta_Mu"]
 
 # Loop on variables
 for varName in varList:
@@ -42,12 +45,12 @@ for varName in varList:
     # Normalisation to Luminosity
     # N_bkg = 1937.09 # CR2
     # N_bkg = 3646.28 # SR1
-    # N_bkg = 569.73 # SR2
-    N_bkg = 22.79 # SR3
+    N_bkg = 569.73 # SR2
+    # N_bkg = 22.79 # SR3
     # N_sig = 6.24*28976*0.000001 # CR2
     # N_sig = 6.24*28976*0.000001 # SR1
-    # N_sig = 6.24*19077*0.000001 # SR2
-    N_sig =  6.24*10860*0.000001 # SR3
+    N_sig = 6.24*19077*0.000001 # SR2
+    # N_sig =  6.24*10860*0.000001 # SR3
 
     histSig.Scale(N_sig)
     histBkg.Scale(N_bkg)
@@ -103,4 +106,4 @@ for varName in varList:
     tOFlw.SetTextSize(0.03)
     tOFlw.Draw()
 
-    canv.SaveAs(varName+".pdf")
+    canv.SaveAs(varName+"_SR2.pdf")

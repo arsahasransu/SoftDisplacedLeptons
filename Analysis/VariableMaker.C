@@ -11,6 +11,13 @@
 #include "TVectorD.h"
 #include "TMath.h"
 
+// Number code for d0 based control and signal regions.
+// 0 - CR1
+// 1 - CR2
+// 2 - SR1
+// 3 - SR2
+// 4 - SR3
+
 // void function essential for bug-free root compilation
 void VariableMaker(void){
   return;
@@ -81,8 +88,8 @@ double transversespherocity(std::vector<TLorentzVector*> lvarray) {
   return spherocity;
 }
 
-// Function to write read from objects and create variables in a Tree
-int createVarOutTree(TChain* tree, TString outFileName, bool signal){
+// Function to write read from objects and create variables in a Tree for one file
+int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choice){
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
   double MET, MET_Eta, MET_Phi, HT;
@@ -379,11 +386,11 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
       if(PT->at(objCtr)<20) continue;
 
       // Signal control for d0 Region. Uncomment one of them only.
-      //if(signal) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
-      if(signal) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
-      //if(signal) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
+      if(signal && d0_choice==0) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
+      if(signal && d0_choice==1) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
+      if(signal && d0_choice==2) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
+      if(signal && d0_choice==3) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
+      if(signal && d0_choice==4) if(TMath::Abs(D0->at(objCtr))>1) continue; // SR3
 
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
@@ -602,7 +609,8 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal){
   return SelectedEvents;
 }
 
-void runononesample(TString chainpath, TString outputname, bool isSignal){
+// Function to run on one file
+void runononesample(TString chainpath, TString outputname, bool isSignal, int d0_choice=-1){
 
   TChain *sigChain = new TChain("SelectedObjects");
   sigChain->Add(chainpath);
@@ -611,7 +619,7 @@ void runononesample(TString chainpath, TString outputname, bool isSignal){
     if (isSignal)
         typeofdata="signal";
     
-  cout<<createVarOutTree(sigChain, outputname, isSignal)
+    cout<<createVarOutTree(sigChain, outputname, isSignal, d0_choice)
       <<" events selected from "
       <<sigChain->GetEntries()
     
@@ -620,7 +628,11 @@ void runononesample(TString chainpath, TString outputname, bool isSignal){
   return;
 }
 
-void execute(TString sigchainpath="../Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
+// Function to run on multiple files
+void execute(int d0_choice=-1,
+	     TString sigOutFile="signal.root",
+	     TString bkgOutFile="background.root",
+	     TString sigchainpath="../Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
 	     TString backgroundchainpath="../Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
 
   TChain *sigChain = new TChain("SelectedObjects");
@@ -629,12 +641,12 @@ void execute(TString sigchainpath="../Data/DislacedLepton/Objects_sorted_Displac
   TChain *bkgChain = new TChain("SelectedObjects");
   bkgChain->Add(backgroundchainpath);
 
-  cout<<createVarOutTree(sigChain, "signal.root", true)
+  cout<<createVarOutTree(sigChain, sigOutFile, true, d0_choice)
       <<" events selected from "
       <<sigChain->GetEntries()
       <<" SIGNAL events'"<<endl;
   
-  cout<<createVarOutTree(bkgChain, "background.root", false)
+  cout<<createVarOutTree(bkgChain, bkgOutFile, false, d0_choice)
       <<" events selected from "
       <<bkgChain->GetEntries()
       <<" BACKGROUND events'"<<endl;
