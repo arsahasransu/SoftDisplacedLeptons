@@ -5,8 +5,8 @@ import math
 # Read the variables to chain
 sigTree=rt.TChain("varTree","varTree")
 bgTree=rt.TChain("varTree","varTree")
-sigTree.Add("signal_SR2.root")
-bgTree.Add("background_SR2.root")
+sigTree.Add("signal_SR3.root")
+bgTree.Add("background_SR3.root")
 print("Now filled trees:",sigTree.GetEntries(),bgTree.GetEntries())
 
 # Create a canvas and list of variables
@@ -45,15 +45,15 @@ for varName in varList:
     # Normalisation to Luminosity
     # N_bkg = 1937.09 # CR2
     # N_bkg = 3646.28 # SR1
-    N_bkg = 569.73 # SR2
-    # N_bkg = 22.79 # SR3
-    # N_sig = 6.24*28976*0.000001 # CR2
-    # N_sig = 6.24*28976*0.000001 # SR1
-    N_sig = 6.24*19077*0.000001 # SR2
-    # N_sig =  6.24*10860*0.000001 # SR3
+    # N_bkg = 569.73 # SR2
+    N_bkg = 22.79 # SR3
+    # N_sig = 31.2*271/(5*pow(10,6)) # CR2
+    # N_sig = 31.2*28976/(5*pow(10,6)) # SR1
+    # N_sig = 31.2*19077/(5*pow(10,6)) # SR2
+    N_sig = 31.2*10860/(5*pow(10,6)) # SR3
 
-    histSig.Scale(N_sig)
-    histBkg.Scale(N_bkg)
+    histSig.Scale(N_sig/histSig.Integral())
+    histBkg.Scale(N_bkg/histBkg.Integral())
     #histSig.Scale(1./histSig.GetSum())
     #histBkg.Scale(1./histBkg.GetSum())
 
@@ -69,7 +69,17 @@ for varName in varList:
     histSig.GetYaxis().SetTitle("No. of events (Scaled to L=2.6fb-1)")
     canv.SetLogy()
     rt.gStyle.SetOptStat(0)
-    
+
+    # Fix the y axis range
+    # axisRangeYmin = histSig.GetMaximum()
+    # for hist in [histSig,histBkg]:
+    #     if(hist.GetMaximum()<axisRangeYmin):
+    #         axisRangeYmin = hist.GetMaximum()
+    # histSig.SetMinimum(axisRangeYmin*0.0001)
+    # histBkg.SetMinimum(axisRangeYmin*0.0001)
+    histSig.SetMinimum(0.000001)
+    histBkg.SetMinimum(0.000001)
+
     histSig.Draw("same hist E")
     histBkg.Draw("same hist E")
 
@@ -106,4 +116,4 @@ for varName in varList:
     tOFlw.SetTextSize(0.03)
     tOFlw.Draw()
 
-    canv.SaveAs(varName+"_SR2.pdf")
+    canv.SaveAs(varName+"_SR3.pdf")
