@@ -12,9 +12,9 @@ from ROOT import TFile, TTree, TChain
 print("All classes initialized successfully!!!")
 
 sigChan = TChain("varTree")
-sigChan.Add("sigVar.root")
+sigChan.Add("signal.root")
 bkgChan = TChain("varTree")
-bkgChan.Add("bkgVar.root")
+bkgChan.Add("background.root")
 print("Data read from the trees. Printing out the contents.")
 
 sigChan.Print()
@@ -77,7 +77,7 @@ print("Shape of testing sample: ",x_test.shape)
 
 # Build the model
 per = m.Sequential()
-per.add(l.Dense(8, input_dim=4, activation='relu'))
+per.add(l.Dense(8, input_dim=x_train.shape[1], activation='relu'))
 per.add(l.Dropout(rate=0.2))
 per.add(l.Dense(8, activation='relu'))
 per.add(l.Dropout(rate=0.2))

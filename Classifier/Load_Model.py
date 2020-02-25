@@ -17,9 +17,9 @@ from ROOT import TFile, TTree, TChain
 print("All classes initialized successfully!!!")
 
 sigChan = TChain("varTree")
-sigChan.Add("sigVar.root")
+sigChan.Add("signal.root")
 bkgChan = TChain("varTree")
-bkgChan.Add("bkgVar.root")
+bkgChan.Add("background.root")
 print("Data read from the trees.")
 
 sigSampleSize = sigChan.GetEntries()
@@ -45,13 +45,16 @@ else:
     sig = sigFull
     bkgIndx = np.random.choice(range(bkgSampleSize), size=sampleSize, replace=False)
     bkg = bkgFull[bkgIndx]
+print("Data Loaded!!!")
 
 # Load the input data scaler
 scaler = joblib.load("scaler.save")
+print("Scaler Loaded!!!")
 
 # Load the model
 loaded_model = m.load_model("simplePer.h5")
 loaded_model.summary()
+print("Model Loaded!!!")
 
 # Prep the data for model evaluation
 sigT = scaler.transform(sig)
@@ -67,14 +70,13 @@ sig_pred = loaded_model.predict(sigT)
 bkg_pred = loaded_model.predict(bkgT)
 
 # Select for a single output discriminator variable
-sig_pred_one = np.transpose(sig_pred)[0]
-bkg_pred_one = np.transpose(bkg_pred)[0]
+sig_pred_one = np.array(sig_pred)[:,0]
+bkg_pred_one = np.array(bkg_pred)[:,0]
 
 # Combine signal and background
-pred = np.concatenate((sig_pred_one, bkg_pred_one))
+pred = np.concatenate((sig_pred, bkg_pred))
+pred_one = np.concatenate((sig_pred_one, bkg_pred_one))
 labl = np.concatenate((sigLabel, bkgLabel))
-print(pred.shape)
-print(labl.shape)
 
 # Discriminator shape
 plt.clf()
@@ -84,17 +86,18 @@ plt.xlabel("Sig_Prob")
 plt.ylabel("#Events (Area scaled to 1)")
 plt.legend()
 plt.savefig("Discriminator.pdf")
+print("Discriminator plotted!!!")
 
 # Confusion matrix
 threshold = 0.5
-pred_class = pred>threshold
+pred_class = pred_one>threshold
 plt.clf()
 plt.figure(figsize = (10,7))
 plot_confusion_matrix(labl, pred_class)
 plt.savefig("ConfusionMatrix.pdf")
+print("Confusion Matrix printed!!!")
 
 # F1 Score
-
 nofvalues = 100
 thresh = np.empty(nofvalues)
 f1score = np.empty(nofvalues)
@@ -103,7 +106,7 @@ plt.clf()
 for beta in [0.1,0.25,0.5,1,1.25,1.5,2,5,10]:
     for i in range(100):
         thresh[i] = i*1.0/100
-        pred_class = pred>thresh[i]
+        pred_class = pred_one>thresh[i]
         f1score[i] = fbeta_score(labl, pred_class, beta)
 
     plt.plot(thresh,f1score,label=beta)
@@ -112,17 +115,18 @@ plt.xlabel("threshold")
 plt.ylabel("F1 Score")
 plt.legend()
 plt.savefig('f1score.pdf')
+print("fscores plotted!!!")
 
 # ROC Curve
 
-threshold = 0.5
-pred_class = pred>threshold
-labl_class = labl>threshold
+#threshold = 0.5
+#pred_class = pred_one>threshold
+#labl_class = labl>threshold
 plt.clf()
 fig, ax = plt.subplots()
-print(labl_class.shape)
-print(pred_class.shape)
-plot_roc(labl_class, pred_class, ax=ax)
+print(labl.shape)
+print(pred.shape)
+plot_roc(labl, pred)
 plt.savefig('roc.pdf')
 
 ###### END OF STUDY #######
