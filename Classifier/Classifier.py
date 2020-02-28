@@ -77,9 +77,9 @@ print("Shape of testing sample: ",x_test.shape)
 
 # Build the model
 per = m.Sequential()
-per.add(l.Dense(8, input_dim=x_train.shape[1], activation='relu'))
+per.add(l.Dense(18, input_dim=x_train.shape[1], activation='relu'))
 per.add(l.Dropout(rate=0.2))
-per.add(l.Dense(8, activation='relu'))
+per.add(l.Dense(18, activation='relu'))
 per.add(l.Dropout(rate=0.2))
 per.add(l.Dense(2, activation='softmax'))
 print("Model building complete!!!")
@@ -88,7 +88,7 @@ per.compile(optimizer='adam',
             loss='categorical_crossentropy',
             metrics=['accuracy'])
 
-history = per.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=100, batch_size=int(0.1*x_train.shape[0]))
+history = per.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=1000, batch_size=int(0.1*x_train.shape[0]))
 per.evaluate(x_test, y_test, verbose=2)
 
 print(history.history.keys())
@@ -122,35 +122,3 @@ per.evaluate(bkgT, bkgLabel, verbose=2)
 
 # Save the model
 per.save("simplePer.h5")
-
-# Load the model
-loaded_model = m.load_model("simplePer.h5")
-loaded_model.summary()
-
-
-# ROC curve
-
-# Discriminator shape
-print("Predicting for signal samples.")
-sigT = scaler.transform(sigFull)
-sigLabel = np.matrix([[1,0]]*sigT.shape[0])
-loaded_model.evaluate(sigT, sigLabel, verbose=2)
-
-print("Predicting for background samples.")
-bkgT = scaler.transform(bkgFull)
-bkgLabel = np.matrix([[1,0]]*bkgT.shape[0])
-loaded_model.evaluate(bkgT, bkgLabel, verbose=2)
-
-sig_pred = loaded_model.predict(sigT)
-print(sig_pred.shape)
-print(sig_pred)
-
-bkg_pred = loaded_model.predict(bkgT)
-print(bkg_pred.shape)
-print(bkg_pred)
-
-plt.clf()
-plt.hist(np.transpose(sig_pred)[1], bins=100, range=(0,1), density=True, color=None, histtype='step')
-#plt.hist(np.transpose(bkg_pred)[1], bins=100, range=(0,1), density=True, color=None, histtype='step')
-plt.savefig("Discriminator.png")
-
