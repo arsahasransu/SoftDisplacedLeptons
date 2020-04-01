@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[19]:
+# In[44]:
 
 
 import tensorflow as tf
@@ -21,10 +21,18 @@ import pandas as pd
 from ROOT import TFile, TTree, TChain
 from ROOT import TH1F, TCanvas
 
+import plotBeautifier as pB
+
 print("All classes initialized successfully!!!")
 
 
-# In[5]:
+# In[46]:
+
+
+pB.trial_func("AR")
+
+
+# In[2]:
 
 
 sigChan = TChain("varTree")
@@ -34,14 +42,14 @@ bkgChan.Add("background.root")
 print("Data read from the trees. Printing out the contents.")
 
 
-# In[6]:
+# In[3]:
 
 
 sigChan.Print()
 bkgChan.Print()
 
 
-# In[7]:
+# In[4]:
 
 
 # Read input data from root files
@@ -63,7 +71,7 @@ print(sigTest.shape)
 print(bkgTest.shape)
 
 
-# In[8]:
+# In[5]:
 
 
 # Load the input data scaler
@@ -74,7 +82,7 @@ loaded_model = m.load_model("../simplePer.h5")
 loaded_model.summary()
 
 
-# In[9]:
+# In[6]:
 
 
 xTrain = np.concatenate((sigTrain,bkgTrain))
@@ -88,7 +96,7 @@ print(yTrain.shape)
 print(yTest.shape)
 
 
-# In[10]:
+# In[7]:
 
 
 # Randomize the training and testing samples
@@ -103,7 +111,7 @@ xTest = xTest[arr,:]
 yTest = yTest[arr,:]
 
 
-# In[11]:
+# In[8]:
 
 
 # Predict on the samples
@@ -119,13 +127,13 @@ bkgTestPredict = loaded_model.predict(bkgTestScaled)
 xTestPredict = loaded_model.predict(xTestScaled)
 
 
-# In[12]:
+# In[9]:
 
 
 print(sigTrainPredict[0:5])
 
 
-# In[13]:
+# In[10]:
 
 
 print(np.array(sigTrainPredict)[0:5,0])
@@ -148,7 +156,7 @@ plt.savefig("Discriminator.pdf")
 print("Discriminator plotted!!!")
 
 
-# In[28]:
+# In[33]:
 
 
 # Discriminator Shape in ROOT plotting
@@ -163,8 +171,24 @@ bkgTrainHisto.FillN(bkgTrainPredict.shape[0],(bkgTrainPredict[:,0]).astype(float
 sigTestHisto.FillN(sigTestPredict.shape[0],(sigTestPredict[:,0]).astype(float),np.ones(sigTestPredict.shape[0]))
 bkgTestHisto.FillN(bkgTestPredict.shape[0],(bkgTestPredict[:,0]).astype(float),np.ones(bkgTestPredict.shape[0]))
 sigTrainHisto.DrawNormalized("SAME E")
-bkgTrainHisto.DrawNormalized("")
-c1.SaveAs("trial.pdf")
+bkgTrainHisto.DrawNormalized("SAME E")
+sigTestHisto.DrawNormalized("SAME E")
+bkgTestHisto.DrawNormalized("SAME E")
+c1.SetLogy()
+c1.SaveAs("Discriminator.pdf")
+
+
+# In[39]:
+
+
+# Using plotBeautifier
+
+histList = [sigTrainHisto, bkgTrainHisto, sigTestHisto, bkgTestHisto]
+labelList = ["sigTrainHisto", "bkgTrainHisto", "sigTestHisto", "bkgTestHisto"]
+xAxisTitle = "Sig_Prob"
+yAxisTitle = "# Events (scaled to 1)"
+outPlotName = "Discriminator_Beautified.pdf"
+pB.plotBeautifier(histList, labelList, xAxisTitle, yAxisTitle, outPlotName)
 
 
 # In[27]:

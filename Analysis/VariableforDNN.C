@@ -307,12 +307,17 @@ void runononesample(TString chainpath, TString outputname, bool isSignal, int d0
 // Function to run on multiple files
 void execute(int d0_choice=-1,
 	     TString sigOutFile="signal.root",
+	     TString sigOutFileBP_100_200="signal_BP_100_200.root",
 	     TString bkgOutFile="background.root",
-	     TString sigchainpath="./Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
-	     TString backgroundchainpath="./Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
+	     TString sigchainpath="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
+	     TString sigchainpathBP_100_200="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton_BP_100_200/Objects_sorted_DisplacedLepton_BP_100_200_*.root",
+	     TString backgroundchainpath="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root") {
 
   TChain *sigChain = new TChain("SelectedObjects");
   sigChain->Add(sigchainpath);
+
+  TChain *sigChainBP_100_200 = new TChain("SelectedObjects");
+  sigChainBP_100_200->Add(sigchainpathBP_100_200);
 
   TChain *bkgChain = new TChain("SelectedObjects");
   bkgChain->Add(backgroundchainpath);
@@ -322,6 +327,11 @@ void execute(int d0_choice=-1,
       <<sigChain->GetEntries()
       <<" SIGNAL events'"<<endl;
   
+  cout<<createVarOutTree(sigChainBP_100_200, sigOutFileBP_100_200, true, d0_choice)
+      <<" events selected from "
+      <<sigChainBP_100_200->GetEntries()
+      <<" SIGNAL_BP_100_200 events'"<<endl;
+
   cout<<createVarOutTree(bkgChain, bkgOutFile, false, d0_choice)
       <<" events selected from "
       <<bkgChain->GetEntries()
