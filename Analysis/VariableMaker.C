@@ -385,12 +385,12 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
 
-      // Signal control for d0 Region. Uncomment one of them only.
+      // Signal control for d0 Region.
       if(signal && d0_choice==0) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
       if(signal && d0_choice==1) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
       if(signal && d0_choice==2) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
       if(signal && d0_choice==3) if(TMath::Abs(D0->at(objCtr))<0.5) continue; // SR2
-      if(signal && d0_choice==4) if(TMath::Abs(D0->at(objCtr))>1) continue; // SR3
+      if(signal && d0_choice==4) if(TMath::Abs(D0->at(objCtr))<1) continue; // SR3
 
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;

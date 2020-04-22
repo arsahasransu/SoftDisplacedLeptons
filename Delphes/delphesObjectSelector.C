@@ -16,7 +16,7 @@ void delphesObjectSelector(int n)
   gSystem->Load("libDelphes");
   
   // Define ROOT File and Tree
-  TFile outFile(("./delphes_analysis/ppTobb_Cuts2/rootFiles/Objects_sorted_ppTobb_Cuts2_"+std::to_string(n)+".root").c_str(),"RECREATE");
+  TFile outFile("ObjectSelected_Delp342_MG270_Py8244_DisplacedModel_BP_200_220_2cm_Nishita.root","RECREATE");
   TTree event("SelectedObjects","Selected Objects in the Event");
 
   // Define the variables and associated tree branches
@@ -51,7 +51,7 @@ void delphesObjectSelector(int n)
   // Create chain of root trees
   int batchCtr, fileCtr;
   TChain chain("Delphes");
-  chain.Add(("./Delp3_4_1_ppTobb_Cuts2_Batch"+std::to_string(n)+".root").c_str());
+  chain.Add("../../Data/NewSimu_TestData/Delp342_MG270_Py8244_DisplacedModel_BP_200_220_2cm_Nishita.root");
   
   // Create object of class ExRootTreeReader
   ExRootTreeReader *treeReader = new ExRootTreeReader(&chain);
