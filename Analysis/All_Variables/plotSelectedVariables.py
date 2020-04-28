@@ -35,8 +35,8 @@ def plotSingleRegion(d0_region):
         bgTree.Add("background.root")
     else:
         sigTree.Add("signal_BP_200_220_2cm.root")
-        sigTree2mm.Add("signal_BP_200_220_2mm.root")
-        sigTree20cm.Add("signal_BP_200_220_20cm.root")
+        sigTree2mm.Add("signal_BP_180_220_2cm.root")
+        sigTree20cm.Add("signal_BP_304_324_2cm.root")
         bgTree.Add("background.root")
 
     print("Now filled trees:",sigTree.GetEntries(),sigTree2mm.GetEntries(),sigTree20cm.GetEntries(),bgTree.GetEntries())
@@ -173,9 +173,9 @@ def plotSingleRegion(d0_region):
         histBkg.Draw("same hist E")
         
         legc1 = rt.TLegend(0.7, 0.9, 0.89, 1.0, "", "brNDC")
-        legc1.AddEntry(histSig20cm, "Signal BP=(200,220,20cm)", "l")
+        legc1.AddEntry(histSig20cm, "Signal BP=(304,324,2cm)", "l")
         legc1.AddEntry(histSig, "Signal BP=(200,220,2cm)", "l")
-        legc1.AddEntry(histSig2mm, "Signal BP=(200,220,2mm)", "l")
+        legc1.AddEntry(histSig2mm, "Signal BP=(180,220,2cm)", "l")
         legc1.AddEntry(histBkg, "Background", "l")
         legc1.SetTextSize(0.03)
         legc1.SetBorderSize(0)
