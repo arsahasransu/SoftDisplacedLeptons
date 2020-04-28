@@ -144,7 +144,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
   // From plotVarDisb_Objects_8
   std::vector<double> dRLL, dEtaLepJet, dPhiLepJet, dRLepJet, dPhiLepMET, dPhiLepMETSelObj;
   // From plotVarDisb_Objects_Misc
-  std::vector<double> YDelpObj, YUserObj, ST, alphaT, MLL, MLLMET, M, Sphericity, Spherocity;
+  std::vector<double> YDelpObj, YUserObj, ST, alphaT, MLL, MLLMET, M, Sphericity, Spherocity, MtLepMET, MtLepMET_El, MtLepMET_Mu, MtLeadLepMET;
       
   auto varOutFile = new TFile(outFileName, "recreate");
   auto varTree = new TTree("varTree", "Input Variables List for Algorithms");
@@ -232,8 +232,8 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
   //varTree->Branch("Ht", &Ht);
   //varTree->Branch("HtLepJet", &HtLepJet);
   //varTree->Branch("HtLep", &HtLep);
-  //varTree->Branch("HtJet", &HtJet);
-  varTree->Branch("HtDiffHtLepJet", &HtDiffHtLepJet);
+  varTree->Branch("HtJet", &HtJet);
+  //varTree->Branch("HtDiffHtLepJet", &HtDiffHtLepJet);
   //varTree->Branch("DiffMetHt", &DiffMetHt);
   //varTree->Branch("DiffMetHtLepJet", &DiffMetHtLepJet);
   //varTree->Branch("DiffMetHtLep", &DiffMetHtLep);
@@ -243,7 +243,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
   //varTree->Branch("dEtaLepJet", &dEtaLepJet);
   //varTree->Branch("dPhiLepJet", &dPhiLepJet);
   //varTree->Branch("dRLepJet", &dRLepJet);
-  varTree->Branch("dPhiLepMET", &dPhiLepMET);
+  //varTree->Branch("dPhiLepMET", &dPhiLepMET);
   varTree->Branch("dPhiLepMETSelObj", &dPhiLepMETSelObj);
   ////////////////////////////////////////////////  
   varTree->Branch("YDelpObj", &YDelpObj);
@@ -255,6 +255,10 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
   //varTree->Branch("M", &M);
   varTree->Branch("Sphericity", &Sphericity);
   varTree->Branch("Spherocity", &Spherocity);
+  varTree->Branch("MtLepMET", &MtLepMET);
+  //varTree->Branch("MtLepMET_El", &MtLepMET_El);
+  //varTree->Branch("MtLepMET_Mu", &MtLepMET_Mu);
+  varTree->Branch("MtLeadLepMET", &MtLeadLepMET);
   
   // Statistic variable
   int SelectedEvents = 0;
@@ -329,7 +333,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
     subLeadIso_El.clear();
     subLeadIso_Mu.clear();
     diffPhi_Lep.clear();
-      diffIso_Lep.clear();
+    diffIso_Lep.clear();
     ////////////////////////////////////////////////  
     Met.clear();
     MetLepJet.clear();
@@ -366,7 +370,11 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
     MLLMET.clear();
     M.clear();
     Sphericity.clear();
-    Spherocity.clear();;
+    Spherocity.clear();
+    MtLepMET.clear();
+    MtLepMET_El.clear();
+    MtLepMET_Mu.clear();
+    MtLeadLepMET.clear();
 
     if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
     
@@ -385,7 +393,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
 
-      // Signal control for d0 Region.
+      // Signal control for d0 Region. Uncomment one of them only.
       if(signal && d0_choice==0) if(TMath::Abs(D0->at(objCtr))>0.1) continue; // CR1
       if(signal && d0_choice==1) if(TMath::Abs(D0->at(objCtr))<0.1 || TMath::Abs(D0->at(objCtr))>0.2) continue; // CR2
       if(signal && d0_choice==2) if(TMath::Abs(D0->at(objCtr))<0.2) continue; // SR1
@@ -457,6 +465,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
 	Phi_Mu.push_back(Phi->at(objCtr));
 	D0_Mu.push_back(D0->at(objCtr));
 	Iso_Mu.push_back(Iso->at(objCtr));
+	MtLepMET_El.push_back(TMath::Sqrt(2*MET*PT->at(objCtr)*(1-TMath::Cos(lepSingle.DeltaPhi(metVec)))));
       }
       if(TMath::Abs(PID->at(objCtr))==13) {
 	PT_El.push_back(PT->at(objCtr));
@@ -464,6 +473,7 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
 	Phi_El.push_back(Phi->at(objCtr));
 	D0_El.push_back(D0->at(objCtr));
 	Iso_El.push_back(Iso->at(objCtr));
+	MtLepMET_Mu.push_back(TMath::Sqrt(2*MET*PT->at(objCtr)*(1-TMath::Cos(lepSingle.DeltaPhi(metVec)))));
       }
       
     } // End lepton loop
@@ -507,6 +517,8 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
       leadIso_Mu.push_back(Iso->at(firstPos));
       subLeadIso_El.push_back(Iso->at(secondPos));      
     }
+    MtLeadLepMET.push_back(TMath::Sqrt(2*MET*PT->at(firstPos)*(1-TMath::Cos(lep1.DeltaPhi(metVec)))));
+    MtLepMET.push_back(TMath::Sqrt(2*MET*lepSum.Pt()*(1-TMath::Cos(lepSum.DeltaPhi(metVec)))));
 
     // Loop for jet
     for(int jetCtr=0; jetCtr<numJet; jetCtr++) {
@@ -556,15 +568,13 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
       diffPhi_Jet.push_back(JetPhi->at(jetFirstPos)-JetPhi->at(jetSecondPos));
     }
     
-    if(MET>20.0) {
-      Met.push_back(MET);
-      MetDiffMetLepJet.push_back(TMath::Abs(diffObjMet.Pt()));
-      Met_Phi.push_back(MET_Phi);
-      MetDiffMetLepJet_Phi.push_back(diffObjMet.Phi());
-      Ht.push_back(HT);
-      HtDiffHtLepJet.push_back(TMath::Abs(HT-htlepjet));
-      dPhiLepMET.push_back(TMath::Abs(lep1.DeltaPhi(metVec)));
-    }
+    Met.push_back(MET);
+    MetDiffMetLepJet.push_back(TMath::Abs(diffObjMet.Pt()));
+    Met_Phi.push_back(MET_Phi);
+    MetDiffMetLepJet_Phi.push_back(diffObjMet.Phi());
+    Ht.push_back(HT);
+    HtDiffHtLepJet.push_back(TMath::Abs(HT-htlepjet));
+    dPhiLepMET.push_back(TMath::Abs(lep1.DeltaPhi(metVec)));
     
     MetLepJet.push_back(objSum.Pt());
     MetLep.push_back(lepSum.Pt());
@@ -583,14 +593,11 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
       DiffMetHtJet.push_back(TMath::Abs(jetSum.Pt()-htjet));
     }
     
-    if(MET>20.0 && HT>20.0) {
-      DiffMetHt.push_back(TMath::Abs(MET-HT));
-      YDelpObj.push_back(MET/TMath::Sqrt(HT));
-    }
-    
+    DiffMetHt.push_back(TMath::Abs(MET-HT));
+    YDelpObj.push_back(MET/TMath::Sqrt(HT));
+        
     YUserObj.push_back(TMath::Abs(objSum.Pt())/TMath::Sqrt(htlep));
-    if(MET>20.0) ST.push_back(htlepjet+MET);
-    else ST.push_back(htlepjet);
+    ST.push_back(htlepjet+MET);
     double mt = TMath::Sqrt(htlep*htlep-lepSum.Pt()*lepSum.Pt());
     alphaT.push_back(PT->at(secondPos)/mt);
     MLL.push_back(TMath::Abs((lep1+lep2).M()));
@@ -631,12 +638,17 @@ void runononesample(TString chainpath, TString outputname, bool isSignal, int d0
 // Function to run on multiple files
 void execute(int d0_choice=-1,
 	     TString sigOutFile="signal.root",
+	     TString sigOutFileBP_100_200="signal_BP_100_200.root",
 	     TString bkgOutFile="background.root",
-	     TString sigchainpath="../Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
-	     TString backgroundchainpath="../Data/ppTobb_Cuts2/Objects_sorted_ppTobb_*.root") {
+	     TString sigchainpath="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root",
+	     TString sigchainpathBP_100_200="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton_BP_100_200/Objects_sorted_DisplacedLepton_BP_100_200_*.root",
+	     TString backgroundchainpath="/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root") {
 
   TChain *sigChain = new TChain("SelectedObjects");
   sigChain->Add(sigchainpath);
+
+  TChain *sigChainBP_100_200 = new TChain("SelectedObjects");
+  sigChainBP_100_200->Add(sigchainpathBP_100_200);
 
   TChain *bkgChain = new TChain("SelectedObjects");
   bkgChain->Add(backgroundchainpath);
@@ -646,6 +658,11 @@ void execute(int d0_choice=-1,
       <<sigChain->GetEntries()
       <<" SIGNAL events'"<<endl;
   
+  cout<<createVarOutTree(sigChainBP_100_200, sigOutFileBP_100_200, true, d0_choice)
+      <<" events selected from "
+      <<sigChainBP_100_200->GetEntries()
+      <<" SIGNAL_BP_100_200 events'"<<endl;
+
   cout<<createVarOutTree(bkgChain, bkgOutFile, false, d0_choice)
       <<" events selected from "
       <<bkgChain->GetEntries()
