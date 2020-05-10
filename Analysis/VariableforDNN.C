@@ -222,7 +222,8 @@ int createVarOutTree(TChain* tree, TString outFileName, bool signal, int d0_choi
     for(int objCtr=0; objCtr<lenObj; objCtr++) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
-
+      if(TMath::Abs(D0->at(objCtr))>100) continue;
+      
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
       lepSum += lepSingle;

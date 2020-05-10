@@ -115,6 +115,8 @@ void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
 
+      if(TMath::Abs(D0->at(objCtr))>100) continue;
+
       numGoodLep++;
       if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
       if(TMath::Abs(PID->at(objCtr))==13) numGoodMu++;
@@ -215,6 +217,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   }
   hist[0]->GetXaxis()->SetTitle(XaxisTitle);
   hist[0]->GetYaxis()->SetTitle(YaxisTitle);
+  hist[0]->GetYaxis()->SetRangeUser(0.1,10000);
 
   c1->SetLogy();
   gStyle->SetOptStat(0);
@@ -224,8 +227,8 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   }
 
   TLegend* legc1;
-  legc1 = new TLegend(0.1, 0.9, 0.89, 1.0, NULL, "brNDC");
-  for(int histCtr=0; histCtr<hist.size(); histCtr++) {
+  legc1 = new TLegend(0.1, 0.9, 0.5, 1.0, NULL, "brNDC");
+  for(int histCtr=0; histCtr<hist.size()/2.0; histCtr++) {
     legc1->AddEntry(hist[histCtr], label[histCtr], "l");
   }
   legc1->SetTextSize(0.03);
@@ -233,6 +236,15 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   //legc1->SetMargin(false);
   legc1->Draw();
 
+  TLegend* legc2;
+  legc2 = new TLegend(0.55, 0.9, 0.89, 1.0, NULL, "brNDC");
+  for(int histCtr=(int)(hist.size()/2.0); histCtr<hist.size(); histCtr++) {
+    legc2->AddEntry(hist[histCtr], label[histCtr], "l");
+  }
+  legc2->SetTextSize(0.03);
+  legc2->SetBorderSize(0);
+  //legc2->SetMargin(false);
+  legc2->Draw();
   
   Int_t nx    = hist[0]->GetNbinsX()+1;
   Double_t bw1 = hist[0]->GetBinWidth(0);
@@ -275,16 +287,20 @@ void execute() {
   
   histLabel.push_back("pp > bb~ HF Background");
   histLabel.push_back("m_{c}=324 GeV, #Deltam=20 GeV, c#tau_{c}=2 cm");
-  histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=20 cm");
+  //histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=2 m");
+  //histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=20 cm");
   histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=2 cm");
-  histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=2 mm");
+  //histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, c#tau_{c}=2 mm");
+  histLabel.push_back("m_{c}=200 GeV, #Deltam=20 GeV, DM BP");
   histLabel.push_back("m_{c}=180 GeV, #Deltam=40 GeV, c#tau_{c}=2 cm");
 
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root");
-  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2m/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2m_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
-  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_180_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_180_220_2cm_Batch*.root");
 
   for(int ctr=0; ctr<histLabel.size(); ctr++) {

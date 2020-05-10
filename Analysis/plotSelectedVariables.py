@@ -5,6 +5,7 @@ import math
 def plotSingleRegion(d0_region):
     # Read the variables to chain
     sigTree=rt.TChain("varTree","varTree")
+    sigTree2=rt.TChain("varTree","varTree")
     sigTree2mm=rt.TChain("varTree","varTree")
     sigTree20cm=rt.TChain("varTree","varTree")
     bgTree=rt.TChain("varTree","varTree")
@@ -35,11 +36,12 @@ def plotSingleRegion(d0_region):
         bgTree.Add("background.root")
     else:
         sigTree.Add("signal_BP_200_220_2cm.root")
+        sigTree2.Add("signal_BP_200_220_DM.root")
         sigTree2mm.Add("signal_BP_180_220_2cm.root")
-        sigTree20cm.Add("signal_BP_304_324_2cm.root")
+        sigTree20cm.Add("signal.root")
         bgTree.Add("background.root")
 
-    print("Now filled trees:",sigTree.GetEntries(),sigTree2mm.GetEntries(),sigTree20cm.GetEntries(),bgTree.GetEntries())
+    print("Now filled trees:",sigTree.GetEntries(),sigTree2.GetEntries(),sigTree2mm.GetEntries(),sigTree20cm.GetEntries(),bgTree.GetEntries())
     
     # Create a canvas and list of variables
     canv = rt.TCanvas("canv","canv")
@@ -65,6 +67,8 @@ def plotSingleRegion(d0_region):
             
         histSig = rt.TH1D("histSig"+varName, "", nBins, minX, maxX)
         histSig.SetXTitle(varName)
+        histSig2 = rt.TH1D("histSig2"+varName, "", nBins, minX, maxX)
+        histSig2.SetXTitle(varName)
         histSig2mm = rt.TH1D("histSig2mm"+varName, "", nBins, minX, maxX)
         histSig2mm.SetXTitle(varName)
         histSig20cm = rt.TH1D("histSig20cm"+varName, "", nBins, minX, maxX)
@@ -74,6 +78,8 @@ def plotSingleRegion(d0_region):
 
         drawCommand = varName + ">>"+histSig.GetName()+"("+str(nBins)+","+str(minX)+","+str(maxX)+")"
         sigTree.Draw(drawCommand)
+        drawCommand = varName + ">>"+histSig2.GetName()+"("+str(nBins)+","+str(minX)+","+str(maxX)+")"
+        sigTree2.Draw(drawCommand)
         drawCommand = varName + ">>"+histSig2mm.GetName()+"("+str(nBins)+","+str(minX)+","+str(maxX)+")"
         sigTree2mm.Draw(drawCommand)
         drawCommand = varName + ">>"+histSig20cm.GetName()+"("+str(nBins)+","+str(minX)+","+str(maxX)+")"
@@ -81,6 +87,7 @@ def plotSingleRegion(d0_region):
         drawCommand = varName + ">>"+histBkg.GetName()+"("+str(nBins)+","+str(minX)+","+str(maxX)+")"
         bgTree.Draw(drawCommand)
         histSig = rt.gDirectory.Get("histSig"+varName)
+        histSig2 = rt.gDirectory.Get("histSig2"+varName)
         histSig2mm = rt.gDirectory.Get("histSig2mm"+varName)
         histSig20cm = rt.gDirectory.Get("histSig20cm"+varName)
         histBkg = rt.gDirectory.Get("histBkg"+varName)
@@ -128,6 +135,7 @@ def plotSingleRegion(d0_region):
             N_sig2mm = 2.6*3.8*math.pow(10,-3)*633891/(2*pow(10,6)) # SR3
             N_sig20cm = 2.6*3.8*math.pow(10,1)*627644/(2*pow(10,6)) # SR3
             histSig.Scale(1.0/histSig.GetSum())
+            histSig2.Scale(1.0/histSig2.GetSum())
             histSig2mm.Scale(1.0/histSig2mm.Integral())
             histSig20cm.Scale(1.0/histSig20cm.Integral())
             histBkg.Scale(1.0/histBkg.GetSum())
@@ -136,6 +144,9 @@ def plotSingleRegion(d0_region):
         histSig.SetLineColor(2)
         histSig.SetLineWidth(3)
         histSig.GetXaxis().SetRange(0, histSig.GetNbinsX()+1)
+        histSig2.SetLineColor(6)
+        histSig2.SetLineWidth(3)
+        histSig2.GetXaxis().SetRange(0, histSig.GetNbinsX()+1)
         histSig2mm.SetLineColor(3)
         histSig2mm.SetLineWidth(3)
         histSig2mm.GetXaxis().SetRange(0, histSig2mm.GetNbinsX()+1)
@@ -163,24 +174,32 @@ def plotSingleRegion(d0_region):
         # histSig.SetMinimum(axisRangeYmin*0.0001)
         # histBkg.SetMinimum(axisRangeYmin*0.0001)
         histSig.SetMinimum(0.00000001)
+        histSig2.SetMinimum(0.00000001)
         histSig2mm.SetMinimum(0.00000001)
         histSig20cm.SetMinimum(0.00000001)
         histBkg.SetMinimum(0.00000001)
         
         histSig.Draw("same hist E")
+        histSig2.Draw("same hist E")
         histSig2mm.Draw("same hist E")
         histSig20cm.Draw("same hist E")
         histBkg.Draw("same hist E")
         
-        legc1 = rt.TLegend(0.7, 0.9, 0.89, 1.0, "", "brNDC")
-        legc1.AddEntry(histSig20cm, "Signal BP=(304,324,2cm)", "l")
-        legc1.AddEntry(histSig, "Signal BP=(200,220,2cm)", "l")
+        legc1 = rt.TLegend(0.55, 0.9, 0.89, 1.0, "", "brNDC")
+        legc1.AddEntry(histSig2, "Signal BP=(200,220,DM BP)", "l")
         legc1.AddEntry(histSig2mm, "Signal BP=(180,220,2cm)", "l")
-        legc1.AddEntry(histBkg, "Background", "l")
         legc1.SetTextSize(0.03)
         legc1.SetBorderSize(0)
         legc1.Draw()
         
+        legc2 = rt.TLegend(0.1, 0.9, 0.5, 1.0, "", "brNDC")
+        legc2.AddEntry(histSig20cm, "Signal BP=(304,324,2cm)", "l")
+        legc2.AddEntry(histSig, "Signal BP=(200,220,2cm)", "l")
+        legc2.AddEntry(histBkg, "Background", "l")
+        legc2.SetTextSize(0.03)
+        legc2.SetBorderSize(0)
+        legc2.Draw()
+
         nx = histSig.GetNbinsX()+1
         bw1 = histSig.GetBinWidth(0)
         bw2 = histSig.GetBinWidth(nx)
@@ -188,7 +207,7 @@ def plotSingleRegion(d0_region):
         x2 = histSig.GetBinLowEdge(nx)+bw1
         y1 = histSig.GetBinContent(0)/histSig.Integral()
         y2 = histSig.GetBinContent(nx)/histSig.Integral()
-        for hist in [histSig, histSig2mm, histSig20cm, histBkg]:
+        for hist in [histSig, histSig2, histSig2mm, histSig20cm, histBkg]:
             y1 = max(y1,hist.GetBinContent(0)/hist.Integral())
             y2 = max(y2,hist.GetBinContent(nx)/hist.Integral())
 
