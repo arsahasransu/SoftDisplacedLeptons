@@ -182,7 +182,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
 
   TCanvas *c1 = new TCanvas("c1", "c1", 10,32,782,600);
   TPad *pMain = new TPad("","",0.09,0.08,1.0,0.95);
-  TPad *pLeg = new TPad("","",0.001,0.9,1.0,1.0);
+  TPad *pLeg = new TPad("","",0.001,0.88,1.0,0.98);
   TPad *pyAxisTitle = new TPad("","",0.001,0.08,0.08,0.85);
   TPad *pxAxisTitle = new TPad("","",0.08,0.001,1.0,0.08);
   pMain->Draw();
@@ -220,46 +220,70 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   // Add dotted lines to define signal regions
   TLine *lSR1 = new TLine(0.02,0.002,0.02,0.2);
   lSR1->SetLineColor(kGray+2);
-  lSR1->SetLineWidth(2);
+  lSR1->SetLineWidth(1);
   lSR1->SetLineStyle(2);
   lSR1->Draw();
   
   TLine *lSR2 = new TLine(0.05,0.002,0.05,0.2);
   lSR2->SetLineColor(kGray+2);
-  lSR2->SetLineWidth(2);
+  lSR2->SetLineWidth(1);
   lSR2->SetLineStyle(2);
   lSR2->Draw();
 
   TLine *lSR3 = new TLine(0.1,0.002,0.1,0.2);
   lSR3->SetLineColor(kGray+2);
-  lSR3->SetLineWidth(2);
+  lSR3->SetLineWidth(1);
   lSR3->SetLineStyle(2);
   lSR3->Draw();
 
   TLine *lSR4 = new TLine(10,0.002,10,0.2);
   lSR4->SetLineColor(kGray+2);
-  lSR4->SetLineWidth(2);
+  lSR4->SetLineWidth(1);
   lSR4->SetLineStyle(2);
   lSR4->Draw();
 
+  auto sr1 = new TLatex(0.026,0.1,"200 #mum");
+  sr1->SetTextAngle(90);
+  sr1->SetTextSize(0.03);
+  sr1->SetTextFont(102);
+  sr1->Draw();
+
+  auto sr2 = new TLatex(0.065,0.1,"500 #mum");
+  sr2->SetTextAngle(90);
+  sr2->SetTextSize(0.03);
+  sr2->SetTextFont(102);
+  sr2->Draw();
+
+  auto sr3 = new TLatex(0.13,0.1,"1 mm");
+  sr3->SetTextAngle(90);
+  sr3->SetTextSize(0.03);
+  sr3->SetTextFont(102);
+  sr3->Draw();
+
+  auto ex = new TLatex(13,0.1,"10 cm");
+  ex->SetTextAngle(90);
+  ex->SetTextSize(0.03);
+  ex->SetTextFont(102);
+  ex->Draw();
+
   pxAxisTitle->cd();
-  auto xaxisTitle = new TLatex(0.7,0.35,XaxisTitle);
+  auto xaxisTitle = new TLatex(0.6,0.3,XaxisTitle);
   xaxisTitle->SetTextAngle(0);
-  xaxisTitle->SetTextSize(0.5);
+  xaxisTitle->SetTextSize(0.6);
   xaxisTitle->SetTextFont(42);
   xaxisTitle->Draw();
 
   pyAxisTitle->cd();
-  auto yaxisTitle = new TLatex(0.9,0.4,YaxisTitle);
+  auto yaxisTitle = new TLatex(0.7,0.3,YaxisTitle);
   yaxisTitle->SetTextAngle(90);
-  yaxisTitle->SetTextSize(0.38);
+  yaxisTitle->SetTextSize(0.45);
   yaxisTitle->SetTextFont(42);
   yaxisTitle->Draw();
   
   pLeg->cd();
   
   TLegend* legc1;
-  legc1 = new TLegend(0, 0.5, 0.25, 1.0, NULL, "brNDC");
+  legc1 = new TLegend(0.05, 0.5, 0.25, 1.0, NULL, "brNDC");
   for(int histCtr=0; histCtr<1/*hist.size()/2.0*/; histCtr++) {
     legc1->AddEntry(hist[histCtr], label[histCtr], "l");
   }
@@ -280,7 +304,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   pt2->SetFillColor(0);
   pt2->Draw();
   */
-  auto abbrvFormat = new TLatex(0.01,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
+  auto abbrvFormat = new TLatex(0.06,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
   abbrvFormat->SetTextAngle(0);
   abbrvFormat->SetTextSize(0.4);
   abbrvFormat->SetTextFont(42);
@@ -353,11 +377,13 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   t->Draw();
   */
 
+  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".C");
+  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".root");
   c1->SaveAs("./Analysis/PaperPlots/"+saveName+".pdf");
   delete c1;
 }
 
-void prePaperPlots() {
+void prePaperPlots_D0() {
 
   std::vector<TString> histLabel;
   std::vector<TChain*> t;
@@ -375,12 +401,12 @@ void prePaperPlots() {
   //histLabel.push_back("(220, 40, 20)");
 
   histColor.push_back(1);
-  histColor.push_back(2);
-  histColor.push_back(4);
-  histColor.push_back(6);
-  histColor.push_back(8);
-  histColor.push_back(28);
-  histColor.push_back(36);
+  histColor.push_back(kBlue+2);
+  histColor.push_back(kBlue-7);
+  histColor.push_back(kRed-9);
+  histColor.push_back(kRed-7);
+  histColor.push_back(kRed-4);
+  histColor.push_back(kRed+2);
   //histColor.push_back(1);
 
   histLineStyle.push_back(1);
@@ -394,7 +420,7 @@ void prePaperPlots() {
 
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
-  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_304_324_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_304_324_DM_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");

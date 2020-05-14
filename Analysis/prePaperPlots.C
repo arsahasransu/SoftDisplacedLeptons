@@ -7,7 +7,7 @@ public:
   void plotBeautifier(std::vector<TH1F*>, std::vector<TString>,
 		      TString, TString, TString,
 		      std::vector<int>, std::vector<int>, 
-		      bool, bool);
+		      bool, bool, bool, bool);
 
   // Declare histogram suffix
   std::vector<TString> histSuff;
@@ -46,19 +46,19 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     for(int ctr=0; ctr<=nD0bins; ctr++) {
       D0xbins[ctr] = TMath::Power(10,TMath::Log10(D0xlow)+D0xdiff*ctr);
     }
-    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",51,-1,101));
-    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",51,-1,101));
-    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",51,-1,101));
+    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",25,19,71));
+    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",25,19,71));
+    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",25,19,71));
     hist_Eta.push_back(new TH1F("Eta"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_El.push_back(new TH1F("Eta_El"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_Mu.push_back(new TH1F("Eta_Mu"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Phi.push_back(new TH1F("Phi"+histSuff[fileTypeCtr],"",51,-3.2,3.2));
     hist_Phi_El.push_back(new TH1F("Phi_El"+histSuff[fileTypeCtr],"",51,-3.2,3.2));
     hist_Phi_Mu.push_back(new TH1F("Phi_Mu"+histSuff[fileTypeCtr],"",51,-3.2,3.2));
-    hist_Iso.push_back(new TH1F("Iso"+histSuff[fileTypeCtr],"",51,0,1));
-    hist_Iso_El.push_back(new TH1F("Iso_El"+histSuff[fileTypeCtr],"",51,0,1));
-    hist_Iso_Mu.push_back(new TH1F("Iso_Mu"+histSuff[fileTypeCtr],"",51,0,1));
-    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",51,-1,101));
+    hist_Iso.push_back(new TH1F("Iso"+histSuff[fileTypeCtr],"",13,0,0.25));
+    hist_Iso_El.push_back(new TH1F("Iso_El"+histSuff[fileTypeCtr],"",13,0,0.25));
+    hist_Iso_Mu.push_back(new TH1F("Iso_Mu"+histSuff[fileTypeCtr],"",13,0,0.25));
+    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",11,-1,40));
     hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",51,-1,101));
   }
 }
@@ -107,7 +107,7 @@ void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr) {
   int SelectedEvents = 0;
 
   // Open Event Loop
-  for(int evtCtr=0; evtCtr<10000/*tree->GetEntries()*/; evtCtr++) {
+  for(int evtCtr=0; evtCtr<tree->GetEntries(); evtCtr++) {
 
     if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
     
@@ -222,11 +222,12 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
 					 TString XaxisTitle, TString YaxisTitle, TString saveName,
 					 std::vector<int> histColor,
 					 std::vector<int> histLineStyle, 
-					 bool ylog=true, bool xlog=false) {
+					 bool ylog=true, bool xlog=false,
+					 bool underflowBin=true, bool overflowBin=true) {
 
   TCanvas *c1 = new TCanvas("c1", "c1", 10,32,782,600);
   TPad *pMain = new TPad("","",0.09,0.08,1.0,0.95);
-  TPad *pLeg = new TPad("","",0.001,0.9,1.0,1.0);
+  TPad *pLeg = new TPad("","",0.001,0.88,1.0,0.98);
   TPad *pyAxisTitle = new TPad("","",0.001,0.08,0.08,0.85);
   TPad *pxAxisTitle = new TPad("","",0.08,0.001,1.0,0.08);
   pMain->Draw();
@@ -240,6 +241,9 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
     hist[histCtr]->SetLineWidth(3);
     hist[histCtr]->SetLineStyle(histLineStyle[histCtr]);
     hist[histCtr]->Scale(1.0/hist[histCtr]->Integral());
+    if(underflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX());
+    if(overflowBin) hist[histCtr]->GetXaxis()->SetRange(1, hist[histCtr]->GetNbinsX()+1);
+    if(underflowBin && overflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX()+1);
     hist[histCtr]->GetYaxis()->SetRangeUser(0.002,0.2);
   }
   hist[0]->GetXaxis()->SetTitle("");
@@ -278,36 +282,41 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   }
   y1 = y1*1.1;
   y2 = y2*1.1;
-  TText *tUFlw = new TText(x1-bw1/2,y1,"Underflow");
-  tUFlw->SetTextAngle(90);
-  tUFlw->SetTextAlign(12);
-  tUFlw->SetTextSize(0.045);
-  tUFlw->Draw();
 
-  TText *t = new TText(x2-bw2/2,y2,"Overflow");
-  t->SetTextAngle(90);
-  t->SetTextAlign(12);
-  t->SetTextSize(0.045);
-  t->Draw();
+  if(underflowBin) {
+    TText *tUFlw = new TText(x1-bw1/2,y1,"Underflow");
+    tUFlw->SetTextAngle(90);
+    tUFlw->SetTextAlign(12);
+    tUFlw->SetTextSize(0.045);
+    tUFlw->Draw();
+  }
+
+  if(overflowBin) {
+    TText *OFlw = new TText(x2-bw2/2,y2,"Overflow");
+    OFlw->SetTextAngle(90);
+    OFlw->SetTextAlign(12);
+    OFlw->SetTextSize(0.035);
+    OFlw->Draw();
+  }
   
   pxAxisTitle->cd();
-  auto xaxisTitle = new TLatex(0.7,0.35,XaxisTitle);
+  auto xaxisTitle = new TLatex(0.6,0.3,XaxisTitle);
   xaxisTitle->SetTextAngle(0);
-  xaxisTitle->SetTextSize(0.5);
+  xaxisTitle->SetTextSize(0.6);
   xaxisTitle->SetTextFont(42);
   xaxisTitle->Draw();
 
   pyAxisTitle->cd();
-  auto yaxisTitle = new TLatex(0.9,0.4,YaxisTitle);
+  auto yaxisTitle = new TLatex(0.7,0.3,YaxisTitle);
   yaxisTitle->SetTextAngle(90);
-  yaxisTitle->SetTextSize(0.38);
+  yaxisTitle->SetTextSize(0.45);
   yaxisTitle->SetTextFont(42);
   yaxisTitle->Draw();
   
   pLeg->cd();
   
   TLegend* legc1;
-  legc1 = new TLegend(0, 0.5, 0.25, 1.0, NULL, "brNDC");
+  legc1 = new TLegend(0.1, 0.5, 0.4, 1.0, NULL, "brNDC");
   for(int histCtr=0; histCtr<1/*hist.size()/2.0*/; histCtr++) {
     legc1->AddEntry(hist[histCtr], label[histCtr], "l");
   }
@@ -328,14 +337,14 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   pt2->SetFillColor(0);
   pt2->Draw();
   */
-  auto abbrvFormat = new TLatex(0.01,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
+  auto abbrvFormat = new TLatex(0.12,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
   abbrvFormat->SetTextAngle(0);
   abbrvFormat->SetTextSize(0.4);
   abbrvFormat->SetTextFont(42);
   abbrvFormat->Draw();
 
-  float legStart = 0.3;
-  float legDiff = 0.22;
+  float legStart = 0.43;
+  float legDiff = 0.3;
   
   TLegend* legc2;
   legc2 = new TLegend(legStart, 0, legStart+legDiff, 1.0, NULL, "brNDC");
@@ -395,7 +404,7 @@ void prePaperPlots() {
   histColor.push_back(2);
   histColor.push_back(4);
   //histColor.push_back(6);
-  histColor.push_back(8);
+  histColor.push_back(kGreen+2);
   //histColor.push_back(28);
   //histColor.push_back(36);
   histColor.push_back(28);
@@ -411,7 +420,7 @@ void prePaperPlots() {
 
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
-  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DislacedLepton/Objects_sorted_DisplacedLepton_*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_304_324_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_304_324_DM_Batch*.root");
   //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
   //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");
@@ -435,19 +444,19 @@ void prePaperPlots() {
   }
 
   // Regular Lepton Kinematics
-  pVDO->plotBeautifier(pVDO->hist_PT, histLabel, "pT (GeV)", "# Events (arbitrary units)", "PT", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_PT_El, histLabel, "Electron pT (GeV)", "# Events (arbitrary units)", "PT_El", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_PT_Mu, histLabel, "Muon pT (GeV)", "# Events (arbitrary units)", "PT_Mu", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Eta, histLabel, "#eta", "# Events (arbitrary units)", "Eta", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Eta_El, histLabel, "Electron #eta", "# Events (arbitrary units)", "Eta_El", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Eta_Mu, histLabel, "Muon #eta", "# Events (arbitrary units)", "Eta_Mu", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Phi, histLabel, "#phi", "# Events (arbitrary units)", "Phi", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Phi_El, histLabel, "Electron #phi", "# Events (arbitrary units)", "Phi_El", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Phi_Mu, histLabel, "Muon #phi", "# Events (arbitrary units)", "Phi_Mu", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Iso, histLabel, "Iso", "# Events (arbitrary units)", "Iso", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Iso_El, histLabel, "Electron Iso", "# Events (arbitrary units)", "Iso_El", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_Iso_Mu, histLabel, "Muon Iso", "# Events (arbitrary units)", "Iso_Mu", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_PT_Jet, histLabel, "Jet pT (GeV)", "# Events (arbitrary units)", "PT_Jet", histColor, histLineStyle);
-  pVDO->plotBeautifier(pVDO->hist_MET, histLabel, "#slash{E}_{T} (GeV)", "# Events (arbitrary units)", "MET", histColor, histLineStyle);
+  pVDO->plotBeautifier(pVDO->hist_PT, histLabel, "pT (GeV)", "# Events (arbitrary units)", "PT", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_El, histLabel, "Electron pT (GeV)", "# Events (arbitrary units)", "PT_El", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_Mu, histLabel, "Muon pT (GeV)", "# Events (arbitrary units)", "PT_Mu", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Eta, histLabel, "#eta", "# Events (arbitrary units)", "Eta", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Eta_El, histLabel, "Electron #eta", "# Events (arbitrary units)", "Eta_El", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Eta_Mu, histLabel, "Muon #eta", "# Events (arbitrary units)", "Eta_Mu", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi, histLabel, "#phi", "# Events (arbitrary units)", "Phi", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi_El, histLabel, "Electron #phi", "# Events (arbitrary units)", "Phi_El", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi_Mu, histLabel, "Muon #phi", "# Events (arbitrary units)", "Phi_Mu", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Iso, histLabel, "Iso", "# Events (arbitrary units)", "Iso", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Iso_El, histLabel, "Electron Iso", "# Events (arbitrary units)", "Iso_El", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Iso_Mu, histLabel, "Muon Iso", "# Events (arbitrary units)", "Iso_Mu", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_Jet, histLabel, "Jet pT (GeV)", "# Events (arbitrary units)", "PT_Jet", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_MET, histLabel, "#slash{E}_{T} (GeV)", "# Events (arbitrary units)", "MET", histColor, histLineStyle, true, false, false, true);
 
 }
