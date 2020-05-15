@@ -69,7 +69,8 @@ public:
   Calculator();
   ~Calculator();
   int yieldCalc(TChain* signal,
-		TString outFileName);
+		TString outFileName,
+		bool isSignal);
 
   // Declare histogram suffix
   std::vector<TString> histSuff;
@@ -81,7 +82,7 @@ Calculator::Calculator() {
 Calculator::~Calculator() {
 }
 
-int Calculator::yieldCalc(TChain* signal, TString outFileName) {
+int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
 
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
@@ -167,7 +168,7 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
   varTree_SR3->Branch("Sphericity_SR3", &Sphericity_SR3);
   varTree_SR3->Branch("Spherocity_SR3", &Spherocity_SR3);
   varTree_SR3->Branch("MtLeadLepMET_SR3", &MtLeadLepMET_SR3);
-
+  
   // Selected Events for the total yield
   int SelectedEvents = 0;
   int SelEvntSR1 = 0;
@@ -197,7 +198,9 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
       if(TMath::Abs(D0->at(objCtr))>100) continue; // D0 acceptance to 10 cm
-
+      if(isSignal && TMath::Abs(PID->at(objCtr))==11 && Iso->at(objCtr)>0.12) continue;
+      if(isSignal && TMath::Abs(PID->at(objCtr))==13 && Iso->at(objCtr)>0.15) continue;
+	
       lepPos.push_back(objCtr);
     }
 
@@ -208,21 +211,21 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
       for(int lep2Ctr=lep1Ctr+1; lep2Ctr<lepPos.size(); lep2Ctr++) {
 	if(PID->at(lepPos[lep1Ctr])*PID->at(lepPos[lep2Ctr]) != -11*13) continue;
 
-	if(TMath::Abs(D0->at(lepPos[lep1Ctr]))>=1 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=1) { // break if event is signal region 3
+	if(isSignal && TMath::Abs(D0->at(lepPos[lep1Ctr]))>=1 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=1) { // break if event is signal region 3
 	  signalRegion = 4;
 	  firstPos = lepPos[lep1Ctr];
 	  secondPos = lepPos[lep2Ctr];
 	  foundGoodLep = true;
 	  break;
 	}
-	else if(TMath::Abs(D0->at(lepPos[lep1Ctr]))>=0.5 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=0.5) {
+	else if(isSignal && TMath::Abs(D0->at(lepPos[lep1Ctr]))>=0.5 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=0.5) {
 	  if(signalRegion>=3) continue;
 	  signalRegion = 3;
 	  firstPos = lepPos[lep1Ctr];
 	  secondPos = lepPos[lep2Ctr];
 	  foundGoodLep = true;
 	}
-	else if(TMath::Abs(D0->at(lepPos[lep1Ctr]))>=0.2 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=0.2) {
+	else if(isSignal && TMath::Abs(D0->at(lepPos[lep1Ctr]))>=0.2 && TMath::Abs(D0->at(lepPos[lep2Ctr]))>=0.2) {
 	  if(signalRegion>=2) continue;
 	  signalRegion = 2;
 	  firstPos = lepPos[lep1Ctr];
@@ -244,9 +247,9 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
     if(foundGoodLep==false) continue;
 
     SelectedEvents++;
-    if(signalRegion==4) SelEvntSR3++;
-    if(signalRegion==3) SelEvntSR2++;
-    if(signalRegion==2) SelEvntSR1++;
+    if(isSignal && signalRegion==4) SelEvntSR3++;
+    if(isSignal && signalRegion==3) SelEvntSR2++;
+    if(isSignal && signalRegion==2) SelEvntSR1++;
 
     int NLep = numGoodLep;
     int NEl = numGoodEl;
@@ -276,6 +279,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
       if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
       if(PT->at(objCtr)<20) continue;
       if(TMath::Abs(D0->at(objCtr))>100) continue;
+      if(TMath::Abs(PID->at(objCtr))==11 && Iso->at(objCtr)>0.12) continue;
+      if(TMath::Abs(PID->at(objCtr))==13 && Iso->at(objCtr)>0.15) continue;
       
       TLorentzVector lepSingle;
       lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
@@ -334,7 +339,7 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
     varTree->Fill();
 
     // Fill the corresponding signal tree
-    if(signalRegion==4) {
+    if(isSignal && signalRegion==4) {
       HtJet_SR3 = HtJet;
       dRLL_SR3 = dRLL;
       dPhiLepMETSelObj_SR3 = dPhiLepMETSelObj;
@@ -346,7 +351,7 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
       MtLeadLepMET_SR3 = MtLeadLepMET;      
       varTree_SR3->Fill();
     }
-    if(signalRegion==3) {
+    if(isSignal && signalRegion==3) {
       HtJet_SR2 = HtJet;
       dRLL_SR2 = dRLL;
       dPhiLepMETSelObj_SR2 = dPhiLepMETSelObj;
@@ -358,7 +363,7 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
       MtLeadLepMET_SR2 = MtLeadLepMET;      
       varTree_SR2->Fill();
     }
-    if(signalRegion==2) {
+    if(isSignal && signalRegion==2) {
       HtJet_SR1 = HtJet;
       dRLL_SR1 = dRLL;
       dPhiLepMETSelObj_SR1 = dPhiLepMETSelObj;
@@ -374,7 +379,7 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName) {
   } // End of Event Loop
 
   varOutFile->Write();
-  std::cout<<SelEvntSR1<<"\t"<<SelEvntSR2<<"\t"<<SelEvntSR3<<std::endl;
+  if(isSignal) std::cout<<SelEvntSR1<<"\t"<<SelEvntSR2<<"\t"<<SelEvntSR3<<std::endl;
   return SelectedEvents;
 }
 
@@ -389,7 +394,7 @@ void trial2_signalSig() {
   std::vector<double> sigmaCrossSecVec; // in fb
   std::vector<long> nSimuVec;
 
-  //histLabel.push_back("HF Background");
+  histLabel.push_back("HF Background");
   histLabel.push_back("(220, 20, DM)");
   histLabel.push_back("(324, 20, DM)");
   histLabel.push_back("(220, 20, 0.2)");
@@ -398,7 +403,7 @@ void trial2_signalSig() {
   histLabel.push_back("(220, 20, 200)");
   histLabel.push_back("(220, 40, 20)");
 
-  //outFile.push_back(TODO);
+  outFile.push_back("HF_background.root");
   outFile.push_back("BP_200_20_DM.root");
   outFile.push_back("BP_324_20_DM.root");
   outFile.push_back("BP_200_20_02.root");
@@ -407,7 +412,7 @@ void trial2_signalSig() {
   outFile.push_back("BP_200_20_200.root");
   outFile.push_back("BP_200_40_20.root");
   
-  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_304_324_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_304_324_DM_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
@@ -416,7 +421,7 @@ void trial2_signalSig() {
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2m/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2m_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_180_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_180_220_2cm_Batch*.root");
 
-  //crossSecVec.push_back(TODO);
+  crossSecVec.push_back(0);
   crossSecVec.push_back(903*0.014);
   crossSecVec.push_back(128*0.025);
   crossSecVec.push_back(903);
@@ -425,7 +430,7 @@ void trial2_signalSig() {
   crossSecVec.push_back(903);
   crossSecVec.push_back(903);
   
-  //sigmaCrossSecVec.push_back(TODO);
+  sigmaCrossSecVec.push_back(0);
   sigmaCrossSecVec.push_back(54*0.014);
   sigmaCrossSecVec.push_back(10*0.025);
   sigmaCrossSecVec.push_back(54);
@@ -434,7 +439,7 @@ void trial2_signalSig() {
   sigmaCrossSecVec.push_back(54);
   sigmaCrossSecVec.push_back(54);
 
-  //nSimuVec.push_back(TODO);
+  nSimuVec.push_back(1);
   nSimuVec.push_back(20*100000);
   nSimuVec.push_back(20*100000);
   nSimuVec.push_back(20*100000);
@@ -458,13 +463,17 @@ void trial2_signalSig() {
     double lumi = 2.6; // In fb^{-1}
     double nEvent = lumi*crossSecVec[ctr];
     double wt = nEvent/nSimuVec[ctr];
+    int selNumEvnt = 0;
     // Compute the error in wt
-    int selNumEvnt = C->yieldCalc(t[ctr],outFile[ctr]);
-    /*
-      cout<<"For signal BP: "<<histLabel[ctr]
-      <<" - Selected:"<<selNumEvnt<<" events from "<<t[ctr]->GetEntries()
-      <<". Yield = "<<wt*selNumEvnt<<endl;
-    */
+    if(ctr==0) // For Background
+      selNumEvnt = C->yieldCalc(t[ctr],outFile[ctr],false);
+    else // For signal BP
+      selNumEvnt = C->yieldCalc(t[ctr],outFile[ctr],true);
+
+    cout<<"For signal BP: "<<histLabel[ctr]
+	<<" - Selected:"<<selNumEvnt<<" events from "<<t[ctr]->GetEntries()
+	<<". Yield = "<<wt*selNumEvnt<<endl;
+    
   }
 
 }
