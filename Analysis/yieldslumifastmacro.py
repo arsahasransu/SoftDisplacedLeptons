@@ -87,7 +87,7 @@ for filename in filelist:
         
 
         binval095 = sumSR1.GetXaxis().FindBin(NNcut)
-        print("cutting at ", NNcut", : true bin cut value: ",sumSR1.GetBinLowEdge(binval095) )
+        print("cutting at ", NNcut," : true bin cut value: ",sumSR1.GetBinLowEdge(binval095) )
         signifSR1 =sumSR1.Clone("signifSR1")
         signifSR1.Divide(sqrtsumBGSR1)
         signifSR2 =sumSR2.Clone("signifSR2")
