@@ -2,6 +2,7 @@ import os, sys
 import ROOT as rt
 import math
 
+NNcut = 0.950000
 normBGSR1 = 4122.8
 normBGSR2 = 644.2
 normBGSR3 = 24.479
@@ -85,8 +86,8 @@ for filename in filelist:
     #                "SR3:",round(histosigSR3.Integral(ibin,maxbins),3))
         
 
-        binval095 = sumSR1.GetXaxis().FindBin(0.950001)
-#        print("cutting at  0.95: bin values: ",sumSR1.GetBinLowEdge(binval095),sumSR1.GetBinContent(binval095) )
+        binval095 = sumSR1.GetXaxis().FindBin(NNcut)
+        print("cutting at ", NNcut", : true bin cut value: ",sumSR1.GetBinLowEdge(binval095) )
         signifSR1 =sumSR1.Clone("signifSR1")
         signifSR1.Divide(sqrtsumBGSR1)
         signifSR2 =sumSR2.Clone("signifSR2")
