@@ -17,15 +17,15 @@ def sigSig(rootFileName):
     bkg_hist = signal_file.Get("background")
     
     discCut = 0.95
-    minBin = SR1_hist.FindFirstBinAbove(discCut)
+    minBin = SR1_hist.FindBin(discCut)
     
     sr1_AC = SR1_hist.Integral(minBin, 101)
     sr2_AC = SR2_hist.Integral(minBin, 101)
     sr3_AC = SR3_hist.Integral(minBin, 101)
-    bkg_SR1_AC = bkg_hist.Integral(minBin, 101)*normBGSR1/bkg_hist.Integral()
-    bkg_SR2_AC = bkg_hist.Integral(minBin, 101)*normBGSR2/bkg_hist.Integral()
-    bkg_SR3_AC = bkg_hist.Integral(minBin, 101)*normBGSR3/bkg_hist.Integral()
-    
+    bkg_SR1_AC = bkg_hist.Integral(minBin, 101)*normBGSR1
+    bkg_SR2_AC = bkg_hist.Integral(minBin, 101)*normBGSR2
+    bkg_SR3_AC = bkg_hist.Integral(minBin, 101)*normBGSR3
+
     lumivals = [2.6, 36, 140, 300]
     
     for lumi in lumivals:
@@ -41,10 +41,18 @@ def sigSig(rootFileName):
         signalSigSR2 = sigEvntSR2/rt.TMath.Sqrt(sigEvntSR2+bkgEvntSR2)
         signalSigSR3 = sigEvntSR3/rt.TMath.Sqrt(sigEvntSR3+bkgEvntSR3)
         
-        print("Signal Significance:",
-              "SR1",round(signalSigSR1,4),
-              "SR2",round(signalSigSR2,4),
-              "SR3",round(signalSigSR3,4),
+        print(round(sigEvntSR1,4),
+              round(bkgEvntSR1,4),
+              round(signalSigSR1,4),
+              " SR1 || ",
+              round(sigEvntSR2,4),
+              round(bkgEvntSR2,4),
+              round(signalSigSR2,4),
+              " SR2 || ",
+              round(sigEvntSR3,4),
+              round(bkgEvntSR3,4),
+              round(signalSigSR3,4),
+              " SR3 || ",
               "Luminosity: ",lumi)
         
     signal_file.Close()

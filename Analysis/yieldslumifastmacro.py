@@ -14,7 +14,7 @@ filelist = ("../../SoftDisplacedLeptons/BP_200_20_02_Disc.root",    "../../SoftD
     "../../SoftDisplacedLeptons/BP_324_20_DM_Disc.root",
     "../../SoftDisplacedLeptons/BP_200_20_2_Disc.root"
 )
-lumivals = {2.9, 36., 140., 300.}
+lumivals = {2.6, 36., 140., 300.}
 for filename in filelist:
     print(filename)
     file = rt.TFile(filename,"READ")
@@ -46,7 +46,7 @@ for filename in filelist:
 
     for lumival in lumivals:
 
-        lumicorr = lumival/2.9
+        lumicorr = lumival/2.6
 #    print(round(histobg.Integral(),3),round(histosigSR1.Integral(),3),round(histosigSR2.Integral(),3),round(histosigSR3.Integral(),3))
         maxbins =histobg.GetNbinsX()+2
 
