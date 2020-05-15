@@ -62,14 +62,14 @@ for filename in filelist:
             
             sumBGSR1.SetBinContent(ibin,lumicorr*histobgSR1.Integral(ibin,maxbins))
             sumBGSR1.SetBinError(ibin,0)
-            sumBGSR2.SetBinContent(ibin,lumicorr*histobgSR3.Integral(ibin,maxbins))
+            sumBGSR2.SetBinContent(ibin,lumicorr*histobgSR2.Integral(ibin,maxbins))
             sumBGSR2.SetBinError(ibin,0)
             sumBGSR3.SetBinContent(ibin,lumicorr*histobgSR3.Integral(ibin,maxbins))
             sumBGSR3.SetBinError(ibin,0)
             
             sqrtsumBGSR1.SetBinContent(ibin,math.sqrt(lumicorr*histobgSR1.Integral(ibin,maxbins)))
             sqrtsumBGSR1.SetBinError(ibin,0)
-            sqrtsumBGSR2.SetBinContent(ibin,math.sqrt(lumicorr*histobgSR3.Integral(ibin,maxbins)))
+            sqrtsumBGSR2.SetBinContent(ibin,math.sqrt(lumicorr*histobgSR2.Integral(ibin,maxbins)))
             sqrtsumBGSR2.SetBinError(ibin,0)
             sqrtsumBGSR3.SetBinContent(ibin,math.sqrt(lumicorr*histobgSR3.Integral(ibin,maxbins)))
             sqrtsumBGSR3.SetBinError(ibin,0)
