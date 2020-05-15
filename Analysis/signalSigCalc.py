@@ -143,10 +143,10 @@ def yieldCalc(rootFileName, crossSec, nSimu):
 
     # Discriminator Shape in ROOT plotting
     discFile = TFile("../"+rootFileName+"_Disc.root","RECREATE")
-    nBins = 100
-    signal_SR1_histo = TH1F("SR1","",nBins,0,1.01)
-    signal_SR2_histo = TH1F("SR2","",nBins,0,1.01)
-    signal_SR3_histo = TH1F("SR3","",nBins,0,1.01)
+    nBins = 103
+    signal_SR1_histo = TH1F("SR1","",nBins,-0.015,1.015)
+    signal_SR2_histo = TH1F("SR2","",nBins,-0.015,1.015)
+    signal_SR3_histo = TH1F("SR3","",nBins,-0.015,1.015)
     background_histo = TH1F("background","",nBins,0,1.01)
     signal_SR1_histo.FillN(signal_SR1_Predict.shape[0],(signal_SR1_Predict[:,0]).astype(float),np.ones(signal_SR1_Predict.shape[0]))
     signal_SR2_histo.FillN(signal_SR2_Predict.shape[0],(signal_SR2_Predict[:,0]).astype(float),np.ones(signal_SR2_Predict.shape[0]))
