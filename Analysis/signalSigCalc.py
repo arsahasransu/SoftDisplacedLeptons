@@ -14,7 +14,7 @@ import seaborn as sn
 import pandas as pd
 
 from ROOT import TFile, TTree, TChain
-from ROOT import TH1F, TCanvas
+from ROOT import TH1D, TCanvas
 
 import os
 import sys
@@ -143,11 +143,11 @@ def yieldCalc(rootFileName, crossSec, nSimu):
 
     # Discriminator Shape in ROOT plotting
     discFile = TFile("../"+rootFileName+"_Disc.root","RECREATE")
-    nBins = 103
-    signal_SR1_histo = TH1F("SR1","",nBins,-0.015,1.015)
-    signal_SR2_histo = TH1F("SR2","",nBins,-0.015,1.015)
-    signal_SR3_histo = TH1F("SR3","",nBins,-0.015,1.015)
-    background_histo = TH1F("background","",nBins,0,1.01)
+    nBins = 101
+    signal_SR1_histo = TH1D("SR1","",nBins,0,1.01)
+    signal_SR2_histo = TH1D("SR2","",nBins,0,1.01)
+    signal_SR3_histo = TH1D("SR3","",nBins,0,1.01)
+    background_histo = TH1D("background","",nBins,0,1.01)
     signal_SR1_histo.Sumw2()
     signal_SR2_histo.Sumw2()
     signal_SR3_histo.Sumw2()
