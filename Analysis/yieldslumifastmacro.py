@@ -2,7 +2,7 @@ import os, sys
 import ROOT as rt
 import math
 
-NNcut = 0.950000
+NNcut = 0.950010
 normBGSR1 = 4122.8
 normBGSR2 = 644.2
 normBGSR3 = 24.479
@@ -121,7 +121,7 @@ for filename in filelist:
         canv3.Update()
         
         print("for luminosity: ", lumicorr*2.9," fb-1, model" , filename)
-        print("significance SR1 with NN>0.95: ",round(signifSR1.GetBinContent(binval095),3)," signal: ",round(sumSR1.GetBinContent(binval095),3),"background: ",round(sumBGSR1.GetBinContent(binval095),3) )
-        print("significance SR2 with NN>0.95: ",round(signifSR2.GetBinContent(binval095),3)," signal: ",round(sumSR2.GetBinContent(binval095),3),"background: ",round(sumBGSR2.GetBinContent(binval095),3) )
-        print("significance SR3 with NN>0.95: ",round(signifSR3.GetBinContent(binval095),3)," signal: ",round(sumSR3.GetBinContent(binval095),3),"background: ",round(sumBGSR3.GetBinContent(binval095),3) )
+        print("significance SR1 with NN>",round(sumSR1.GetBinLowEdge(binval095),2),": ",round(signifSR1.GetBinContent(binval095),3)," signal: ",round(sumSR1.GetBinContent(binval095),3),"background: ",round(sumBGSR1.GetBinContent(binval095),3) )
+        print("significance SR2 with NN>",round(sumSR2.GetBinLowEdge(binval095),2),": ",round(signifSR2.GetBinContent(binval095),3)," signal: ",round(sumSR2.GetBinContent(binval095),3),"background: ",round(sumBGSR2.GetBinContent(binval095),3) )
+        print("significance SR3 with NN>",round(sumSR3.GetBinLowEdge(binval095),2),": ",round(signifSR3.GetBinContent(binval095),3)," signal: ",round(sumSR3.GetBinContent(binval095),3),"background: ",round(sumBGSR3.GetBinContent(binval095),3) )
 
