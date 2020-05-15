@@ -28,12 +28,19 @@ pB.trial_func("AR")
 
 
 def yieldCalc(rootFileName, crossSec, nSimu):
+
+    # Signal Significance Calculation
+    luminosity = 2.6 # in fb^{-1}
+    nSimu = 20*100000
+    nEvent = luminosity*crossSec
+    wt = nEvent/nSimu
+
     signal_SR1_Chain = TChain("varTree_SR1")
     signal_SR2_Chain = TChain("varTree_SR2")
     signal_SR3_Chain = TChain("varTree_SR3")
-    signal_SR1_Chain.Add(rootFileName)
-    signal_SR2_Chain.Add(rootFileName)
-    signal_SR3_Chain.Add(rootFileName)
+    signal_SR1_Chain.Add("../"+rootFileName+".root")
+    signal_SR2_Chain.Add("../"+rootFileName+".root")
+    signal_SR3_Chain.Add("../"+rootFileName+".root")
     background_Chain = TChain("varTree")
     background_Chain.Add("../background.root")
 
@@ -69,15 +76,6 @@ def yieldCalc(rootFileName, crossSec, nSimu):
     background_Predict = loaded_model.predict(background_Scaled)
 
     '''
-    # Discriminator Shape in ROOT plotting
-    c1 = TCanvas()
-    nBins = 100
-    signal_histo = TH1F("","",nBins,0,1.01)
-    background_histo = TH1F("","",nBins,0,1.01)
-    signal_histo.FillN(signal_Predict.shape[0],(signal_Predict[:,0]).astype(float),np.ones(signal_Predict.shape[0]))
-    background_histo.FillN(background_Predict.shape[0],(background_Predict[:,0]).astype(float),np.ones(background_Predict.shape[0]))
-
-
     # In[10]:
     
     
@@ -137,23 +135,39 @@ def yieldCalc(rootFileName, crossSec, nSimu):
     # In[14]:
 
     '''
-    # Signal Significance Calculation
-    luminosity = 2.6 # in fb^{-1}
-    nSimu = 20*100000
-    discCut = 0.98
-    nEvent = luminosity*crossSec
-    wt = nEvent/nSimu
+    discCut = 0
     signalYield_SR1 = wt*(signal_SR1_SigProb>discCut).sum()
     signalYield_SR2 = wt*(signal_SR2_SigProb>discCut).sum()
     signalYield_SR3 = wt*(signal_SR3_SigProb>discCut).sum()
     print(rootFileName,"\t",round(signalYield_SR1,5),"\t",round(signalYield_SR2,5),"\t",round(signalYield_SR3,5))
 
+    # Discriminator Shape in ROOT plotting
+    discFile = TFile("../"+rootFileName+"_Disc.root","RECREATE")
+    nBins = 100
+    signal_SR1_histo = TH1F("SR1","",nBins,0,1.01)
+    signal_SR2_histo = TH1F("SR2","",nBins,0,1.01)
+    signal_SR3_histo = TH1F("SR3","",nBins,0,1.01)
+    background_histo = TH1F("background","",nBins,0,1.01)
+    signal_SR1_histo.FillN(signal_SR1_Predict.shape[0],(signal_SR1_Predict[:,0]).astype(float),np.ones(signal_SR1_Predict.shape[0]))
+    signal_SR2_histo.FillN(signal_SR2_Predict.shape[0],(signal_SR2_Predict[:,0]).astype(float),np.ones(signal_SR2_Predict.shape[0]))
+    signal_SR3_histo.FillN(signal_SR3_Predict.shape[0],(signal_SR3_Predict[:,0]).astype(float),np.ones(signal_SR3_Predict.shape[0]))
+    background_histo.FillN(background_Predict.shape[0],(background_Predict[:,0]).astype(float),np.ones(background_Predict.shape[0]))
+    signal_SR1_histo.Scale(signalYield_SR1/signal_SR1_histo.Integral())
+    signal_SR2_histo.Scale(signalYield_SR2/signal_SR2_histo.Integral())
+    signal_SR3_histo.Scale(signalYield_SR3/signal_SR3_histo.Integral())
+    background_histo.Scale(1.0/background_histo.Integral())
+    signal_SR1_histo.Write()
+    signal_SR2_histo.Write()
+    signal_SR3_histo.Write()
+    background_histo.Write()
+    discFile.Close()
+
     #return [signalYield_SR1,signalYield_SR2,signalYield_SR3]
 
-yieldCalc("../BP_200_20_DM.root",903*0.014,20*100000)
-yieldCalc("../BP_324_20_DM.root",128*0.025,20*100000)
-yieldCalc("../BP_200_20_02.root",903,20*100000)
-yieldCalc("../BP_200_20_2.root",903,20*100000)
-yieldCalc("../BP_200_20_20.root",903,20*100000)
-yieldCalc("../BP_200_20_200.root",903,20*100000)
-yieldCalc("../BP_200_40_20.root",903,20*100000)
+yieldCalc("BP_200_20_DM",903*0.014,20*100000)
+yieldCalc("BP_324_20_DM",128*0.025,20*100000)
+yieldCalc("BP_200_20_02",903,20*100000)
+yieldCalc("BP_200_20_2",903,20*100000)
+yieldCalc("BP_200_20_20",903,20*100000)
+yieldCalc("BP_200_20_200",903,20*100000)
+yieldCalc("BP_200_40_20",903,20*100000)
