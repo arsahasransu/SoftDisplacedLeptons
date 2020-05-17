@@ -58,8 +58,8 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     hist_Iso.push_back(new TH1F("Iso"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_Iso_El.push_back(new TH1F("Iso_El"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_Iso_Mu.push_back(new TH1F("Iso_Mu"+histSuff[fileTypeCtr],"",13,0,0.25));
-    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",11,-1,40));
-    hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",51,-1,101));
+    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",20,20,40));
+    hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",36,0,180));
   }
 }
 
@@ -244,7 +244,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
     if(underflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX());
     if(overflowBin) hist[histCtr]->GetXaxis()->SetRange(1, hist[histCtr]->GetNbinsX()+1);
     if(underflowBin && overflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX()+1);
-    hist[histCtr]->GetYaxis()->SetRangeUser(0.002,0.2);
+    hist[histCtr]->GetYaxis()->SetRangeUser(0.002,hist[histCtr]->GetMaximum()*2);
   }
   hist[0]->GetXaxis()->SetTitle("");
   hist[0]->GetYaxis()->SetTitle("");
@@ -337,7 +337,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   pt2->SetFillColor(0);
   pt2->Draw();
   */
-  auto abbrvFormat = new TLatex(0.12,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
+  auto abbrvFormat = new TLatex(0.12,0.15,"signal (m_{c} [GeV], #Deltam [GeV])");
   abbrvFormat->SetTextAngle(0);
   abbrvFormat->SetTextSize(0.4);
   abbrvFormat->SetTextFont(42);
@@ -379,7 +379,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   //legc4->SetMargin(false);
   legc4->Draw();
 
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".pdf");
+  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".C");
   delete c1;
 }
 
@@ -392,22 +392,22 @@ void prePaperPlots() {
   std::vector<int> histLineStyle;
 
   histLabel.push_back("HF Background");
-  histLabel.push_back("(220, 20, DM)");
-  histLabel.push_back("(324, 20, DM)");
+  histLabel.push_back("DM: (220, 20)");
+  histLabel.push_back("DM: (324, 20)");
   //histLabel.push_back("(220, 20, 0.2)");
-  histLabel.push_back("(220, 20, x)");
+  histLabel.push_back("(220, 20)");
   //histLabel.push_back("(220, 20, 20)");
   //histLabel.push_back("(220, 20, 200)");
-  histLabel.push_back("(220, 40, 2)");
+  histLabel.push_back("(220, 40)");
 
   histColor.push_back(1);
-  histColor.push_back(2);
-  histColor.push_back(4);
+  histColor.push_back(kBlue);
+  histColor.push_back(kBlue-7);
   //histColor.push_back(6);
-  histColor.push_back(kGreen+2);
+  histColor.push_back(kRed);
   //histColor.push_back(28);
   //histColor.push_back(36);
-  histColor.push_back(28);
+  histColor.push_back(kPink+5);
 
   histLineStyle.push_back(1);
   histLineStyle.push_back(1);
@@ -444,19 +444,19 @@ void prePaperPlots() {
   }
 
   // Regular Lepton Kinematics
-  pVDO->plotBeautifier(pVDO->hist_PT, histLabel, "pT (GeV)", "# Events (arbitrary units)", "PT", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_PT_El, histLabel, "Electron pT (GeV)", "# Events (arbitrary units)", "PT_El", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_PT_Mu, histLabel, "Muon pT (GeV)", "# Events (arbitrary units)", "PT_Mu", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_Eta, histLabel, "#eta", "# Events (arbitrary units)", "Eta", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Eta_El, histLabel, "Electron #eta", "# Events (arbitrary units)", "Eta_El", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Eta_Mu, histLabel, "Muon #eta", "# Events (arbitrary units)", "Eta_Mu", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Phi, histLabel, "#phi", "# Events (arbitrary units)", "Phi", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Phi_El, histLabel, "Electron #phi", "# Events (arbitrary units)", "Phi_El", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Phi_Mu, histLabel, "Muon #phi", "# Events (arbitrary units)", "Phi_Mu", histColor, histLineStyle, true, false, false, false);
-  pVDO->plotBeautifier(pVDO->hist_Iso, histLabel, "Iso", "# Events (arbitrary units)", "Iso", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_Iso_El, histLabel, "Electron Iso", "# Events (arbitrary units)", "Iso_El", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_Iso_Mu, histLabel, "Muon Iso", "# Events (arbitrary units)", "Iso_Mu", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_PT_Jet, histLabel, "Jet pT (GeV)", "# Events (arbitrary units)", "PT_Jet", histColor, histLineStyle, true, false, false, true);
-  pVDO->plotBeautifier(pVDO->hist_MET, histLabel, "#slash{E}_{T} (GeV)", "# Events (arbitrary units)", "MET", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT, histLabel, "pT [GeV]", "normalized no. of events", "PT", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_El, histLabel, "electron pT [GeV]", "normalized no. of events", "PT_El", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_Mu, histLabel, "muon pT [GeV]", "normalized no. of events", "PT_Mu", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Eta, histLabel, "#eta", "normalized no. of events", "Eta", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Eta_El, histLabel, "electron #eta", "normalized no. of events", "Eta_El", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Eta_Mu, histLabel, "muon #eta", "normalized no. of events", "Eta_Mu", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi, histLabel, "#phi", "normalized no. of events", "Phi", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi_El, histLabel, "electron #phi", "normalized no. of events", "Phi_El", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Phi_Mu, histLabel, "muon #phi", "normalized no. of events", "Phi_Mu", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Iso, histLabel, "isolation", "normalized no. of events", "Iso", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Iso_El, histLabel, "electron isolation", "normalized no. of events", "Iso_El", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Iso_Mu, histLabel, "muon isolation", "normalized no. of events", "Iso_Mu", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_PT_Jet, histLabel, "jet pT [GeV]", "normalized no. of events", "PT_Jet", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_MET, histLabel, "#slash{E}_{T} [GeV]", "normalized no. of events", "MET", histColor, histLineStyle, true, false, false, true);
 
 }
