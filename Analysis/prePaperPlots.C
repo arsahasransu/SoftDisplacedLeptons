@@ -46,9 +46,9 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     for(int ctr=0; ctr<=nD0bins; ctr++) {
       D0xbins[ctr] = TMath::Power(10,TMath::Log10(D0xlow)+D0xdiff*ctr);
     }
-    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",25,19,71));
-    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",25,19,71));
-    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",25,19,71));
+    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",25,20,70));
+    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",25,20,70));
+    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",25,20,70));
     hist_Eta.push_back(new TH1F("Eta"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_El.push_back(new TH1F("Eta_El"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_Mu.push_back(new TH1F("Eta_Mu"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
@@ -58,7 +58,7 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     hist_Iso.push_back(new TH1F("Iso"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_Iso_El.push_back(new TH1F("Iso_El"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_Iso_Mu.push_back(new TH1F("Iso_Mu"+histSuff[fileTypeCtr],"",13,0,0.25));
-    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",20,20,40));
+    hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",10,20,40));
     hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",36,0,180));
   }
 }
@@ -379,7 +379,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   //legc4->SetMargin(false);
   legc4->Draw();
 
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".C");
+  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".pdf");
   delete c1;
 }
 

@@ -1,7 +1,7 @@
 void PT_Jet()
 {
 //=========Macro generated from canvas: c1/c1
-//=========  (Sat May 16 20:44:48 2020) by ROOT version 6.18/04
+//=========  (Sun May 17 18:02:53 2020) by ROOT version 6.18/04
    TCanvas *c1 = new TCanvas("c1", "c1",0,0,782,600);
    gStyle->SetOptStat(0);
    c1->Range(0,0,1,1);
@@ -61,14 +61,17 @@ void PT_Jet()
    PT_Jet0__61->SetMinimum(0.002);
    PT_Jet0__61->SetMaximum(0.7301587);
    PT_Jet0__61->SetEntries(258);
+   PT_Jet0__61->SetLineColor(1);
    PT_Jet0__61->SetLineWidth(3);
    PT_Jet0__61->GetXaxis()->SetRange(1,21);
+   PT_Jet0__61->GetXaxis()->SetTicks("-");
    PT_Jet0__61->GetXaxis()->SetLabelFont(42);
    PT_Jet0__61->GetXaxis()->SetLabelOffset(-0.07);
    PT_Jet0__61->GetXaxis()->SetLabelSize(0.055);
    PT_Jet0__61->GetXaxis()->SetTitleSize(0.035);
    PT_Jet0__61->GetXaxis()->SetTitleOffset(1);
    PT_Jet0__61->GetXaxis()->SetTitleFont(42);
+   PT_Jet0__61->GetYaxis()->SetTicks("+");
    PT_Jet0__61->GetYaxis()->SetLabelFont(42);
    PT_Jet0__61->GetYaxis()->SetLabelOffset(-0.05);
    PT_Jet0__61->GetYaxis()->SetLabelSize(0.055);
@@ -334,141 +337,147 @@ void PT_Jet()
    PT_Jet4__65->GetZaxis()->SetTitleOffset(1);
    PT_Jet4__65->GetZaxis()->SetTitleFont(42);
    PT_Jet4__65->Draw("hist SAME E");
-   TText *text = new TText(40.5,0.3316627,"Overflow");
+   TText *text = new TText(40.5,0.07,"OVERFLOW");
    text->SetTextAlign(12);
    text->SetTextSize(0.035);
    text->SetTextAngle(90);
    text->Draw();
    pad->Modified();
    c1->cd();
-  
-// ------------>Primitives in pad: 
-   TPad *pad = new TPad("", "",0.001,0.08,0.08,0.85);
-   pad->Draw();
-   pad->cd();
-   pad->Range(0,0,1,1);
-   pad->SetFillColor(0);
-   pad->SetBorderMode(0);
-   pad->SetBorderSize(2);
-   pad->SetFrameBorderMode(0);
+    
+// ------------>Primitives in pad2: 
+   TPad *pad2 = new TPad("", "",0.001,0.08,0.08,0.85);
+   pad2->Draw();
+   pad2->cd();
+   pad2->Range(0,0,1,1);
+   pad2->SetFillColor(0);
+   pad2->SetBorderMode(0);
+   pad2->SetBorderSize(2);
+   pad2->SetFrameBorderMode(0);
    TLatex *   tex = new TLatex(0.7,0.3,"normalized no. of events");
    tex->SetTextFont(42);
    tex->SetTextSize(0.45);
    tex->SetTextAngle(90);
    tex->SetLineWidth(2);
    tex->Draw();
-   pad->Modified();
+   pad2->Modified();
    c1->cd();
   
-// ------------>Primitives in pad: 
-   TPad *pad = new TPad("", "",0.08,0.001,1,0.08);
-   pad->Draw();
-   pad->cd();
-   pad->Range(0,0,1,1);
-   pad->SetFillColor(0);
-   pad->SetBorderMode(0);
-   pad->SetBorderSize(2);
-   pad->SetFrameBorderMode(0);
-      tex = new TLatex(0.6,0.3,"jet pT [GeV]");
+// ------------>Primitives in pad3: 
+   TPad *pad3 = new TPad("", "",0.08,0.001,1,0.08);
+   pad3->Draw();
+   pad3->cd();
+   pad3->Range(0,0,1,1);
+   pad3->SetFillColor(0);
+   pad3->SetBorderMode(0);
+   pad3->SetBorderSize(2);
+   pad3->SetFrameBorderMode(0);
+      tex = new TLatex(0.68,0.5,"jet p_{T} [GeV]");
    tex->SetTextFont(42);
    tex->SetTextSize(0.6);
    tex->SetLineWidth(2);
    tex->Draw();
-   pad->Modified();
+   pad3->Modified();
    c1->cd();
   
-// ------------>Primitives in pad: 
-   TPad *pad = new TPad("", "",0.001,0.88,1,0.98);
-   pad->Draw();
-   pad->cd();
-   pad->Range(0,0,1,1);
-   pad->SetFillColor(0);
-   pad->SetBorderMode(0);
-   pad->SetBorderSize(2);
-   pad->SetFrameBorderMode(0);
+   // ------------>Primitives in pad4: 
+   TPad *pad4 = new TPad("", "",0.001,0.88,1,0.98);
+   pad4->Draw();
+   pad4->cd();
+   pad4->Range(0,0,1,1);
+   pad4->SetFillColor(0);
+   pad4->SetBorderMode(0);
+   pad4->SetBorderSize(2);
+   pad4->SetFrameBorderMode(0);
    
-   TLegend *leg = new TLegend(0,0,0,0,NULL,"brNDC");
+   TLegend *leg = new TLegend(0.02,0.5,0.3,1.0,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetTextSize(0.4);
    leg->SetLineColor(1);
    leg->SetLineStyle(1);
-   leg->SetLineWidth(1);
+   leg->SetLineWidth(3);
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
-   TLegendEntry *entry=leg->AddEntry("PT_Jet0","HF Background","l");
+   TLegendEntry *entry=leg->AddEntry("MET0","HF background","l");
    entry->SetLineColor(1);
    entry->SetLineStyle(1);
-   entry->SetLineWidth(1);
+   entry->SetLineWidth(3);
    entry->SetMarkerColor(1);
    entry->SetMarkerStyle(21);
    entry->SetMarkerSize(1);
    leg->Draw();
-      tex = new TLatex(0.12,0.15,"signal (m_{c} [GeV], #Deltam [GeV])");
+      tex = new TLatex(0.03,0.15,"signal (m_{c} [GeV], #Deltam [GeV])");
    tex->SetTextFont(42);
    tex->SetTextSize(0.4);
    tex->SetLineWidth(2);
    tex->Draw();
    
-   leg = new TLegend(0,0,0,0,NULL,"brNDC");
+   float legStart = 0.42;
+   float legDiff = 0.3;
+
+   leg = new TLegend(legStart,0,legStart+legDiff,1.0,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetTextSize(0.4);
    leg->SetLineColor(1);
    leg->SetLineStyle(1);
-   leg->SetLineWidth(1);
+   leg->SetLineWidth(3);
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
-   entry=leg->AddEntry("PT_Jet1","DM: (220, 20)","l");
-   entry->SetLineColor(1);
+   entry=leg->AddEntry("MET1","DM: (220, 20)","l");
+   entry->SetLineColor(kBlue);
    entry->SetLineStyle(1);
-   entry->SetLineWidth(1);
+   entry->SetLineWidth(3);
    entry->SetMarkerColor(1);
    entry->SetMarkerStyle(21);
    entry->SetMarkerSize(1);
-   entry=leg->AddEntry("PT_Jet2","DM: (324, 20)","l");
-   entry->SetLineColor(1);
+   entry=leg->AddEntry("MET2","DM: (324, 20)","l");
+   entry->SetLineColor(kBlue-7);
    entry->SetLineStyle(1);
-   entry->SetLineWidth(1);
+   entry->SetLineWidth(3);
    entry->SetMarkerColor(1);
    entry->SetMarkerStyle(21);
    entry->SetMarkerSize(1);
    leg->Draw();
    
-   leg = new TLegend(0,0,0,0,NULL,"brNDC");
+   float spaceControl = 0.01;
+
+   leg = new TLegend(legStart+legDiff+spaceControl,0,legStart+2*legDiff+spaceControl,1.0,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetTextSize(0.4);
    leg->SetLineColor(1);
    leg->SetLineStyle(1);
-   leg->SetLineWidth(1);
+   leg->SetLineWidth(3);
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
-   entry=leg->AddEntry("PT_Jet3","(220, 20)","l");
-   entry->SetLineColor(1);
+   entry=leg->AddEntry("MET3","(220, 20)","l");
+   entry->SetLineColor(kRed);
    entry->SetLineStyle(1);
-   entry->SetLineWidth(1);
+   entry->SetLineWidth(3);
    entry->SetMarkerColor(1);
    entry->SetMarkerStyle(21);
    entry->SetMarkerSize(1);
-   entry=leg->AddEntry("PT_Jet4","(220, 40)","l");
-   entry->SetLineColor(1);
+   entry=leg->AddEntry("MET4","(220, 40)","l");
+   entry->SetLineColor(kPink+5);
    entry->SetLineStyle(1);
-   entry->SetLineWidth(1);
+   entry->SetLineWidth(3);
    entry->SetMarkerColor(1);
    entry->SetMarkerStyle(21);
    entry->SetMarkerSize(1);
    leg->Draw();
    
-   leg = new TLegend(0,0,0,0,NULL,"brNDC");
+   leg = new TLegend(legStart+2*legDiff,0,legStart+3*legDiff,1.0,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetTextSize(0.4);
    leg->SetLineColor(1);
    leg->SetLineStyle(1);
-   leg->SetLineWidth(1);
+   leg->SetLineWidth(3);
    leg->SetFillColor(0);
    leg->SetFillStyle(1001);
    leg->Draw();
-   pad->Modified();
+   pad4->Modified();
    c1->cd();
    c1->Modified();
    c1->cd();
    c1->SetSelected(c1);
+   c1->SaveAs("PT_Jet_manuallyEdited.pdf");
 }
