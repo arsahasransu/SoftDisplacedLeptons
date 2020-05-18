@@ -684,7 +684,7 @@ void Phi()
    pad3->SetBorderMode(0);
    pad3->SetBorderSize(2);
    pad3->SetFrameBorderMode(0);
-      tex = new TLatex(0.8,0.5,"#scale[1.2]{#phi}");
+      tex = new TLatex(0.78,0.5,"lepton #scale[1.2]{#phi}");
    tex->SetTextFont(42);
    tex->SetTextSize(0.6);
    tex->SetLineWidth(2);

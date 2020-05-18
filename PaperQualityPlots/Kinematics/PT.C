@@ -444,7 +444,7 @@ void PT()
    pad3->SetBorderMode(0);
    pad3->SetBorderSize(2);
    pad3->SetFrameBorderMode(0);
-      tex = new TLatex(0.76,0.5,"p_{T} [GeV]");
+      tex = new TLatex(0.671,0.5,"lepton p_{T} [GeV]");
    tex->SetTextFont(42);
    tex->SetTextSize(0.6);
    tex->SetLineWidth(2);
