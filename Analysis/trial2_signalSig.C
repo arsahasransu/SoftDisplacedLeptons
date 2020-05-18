@@ -122,13 +122,15 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
   signal->SetBranchAddress("JetM", &JetM);
 
   // Define the output file and corresponding branches
-  double HtJet, dRLL, dPhiLepMETSelObj, YDelpObj, YUserObj, alphaT, Sphericity, Spherocity, MtLeadLepMET;
-  double HtJet_SR1, dRLL_SR1, dPhiLepMETSelObj_SR1, YDelpObj_SR1, YUserObj_SR1, alphaT_SR1, Sphericity_SR1, Spherocity_SR1, MtLeadLepMET_SR1;
-  double HtJet_SR2, dRLL_SR2, dPhiLepMETSelObj_SR2, YDelpObj_SR2, YUserObj_SR2, alphaT_SR2, Sphericity_SR2, Spherocity_SR2, MtLeadLepMET_SR2;
-  double HtJet_SR3, dRLL_SR3, dPhiLepMETSelObj_SR3, YDelpObj_SR3, YUserObj_SR3, alphaT_SR3, Sphericity_SR3, Spherocity_SR3, MtLeadLepMET_SR3;
+  double d0el, d0mu, HtJet, dRLL, dPhiLepMETSelObj, YDelpObj, YUserObj, alphaT, Sphericity, Spherocity, MtLeadLepMET;
+  double d0el_SR1, d0mu_SR1, HtJet_SR1, dRLL_SR1, dPhiLepMETSelObj_SR1, YDelpObj_SR1, YUserObj_SR1, alphaT_SR1, Sphericity_SR1, Spherocity_SR1, MtLeadLepMET_SR1;
+  double d0el_SR2, d0mu_SR2, HtJet_SR2, dRLL_SR2, dPhiLepMETSelObj_SR2, YDelpObj_SR2, YUserObj_SR2, alphaT_SR2, Sphericity_SR2, Spherocity_SR2, MtLeadLepMET_SR2;
+  double d0el_SR3, d0mu_SR3, HtJet_SR3, dRLL_SR3, dPhiLepMETSelObj_SR3, YDelpObj_SR3, YUserObj_SR3, alphaT_SR3, Sphericity_SR3, Spherocity_SR3, MtLeadLepMET_SR3;
   
   auto varOutFile = new TFile(outFileName, "recreate");
   auto varTree = new TTree("varTree", "Input Variables List for Algorithms");
+  varTree->Branch("D0El", &d0el);
+  varTree->Branch("D0Mu", &d0mu);
   varTree->Branch("HtJet", &HtJet);
   varTree->Branch("dRLL", &dRLL);
   varTree->Branch("dPhiLepMETSelObj", &dPhiLepMETSelObj);
@@ -139,6 +141,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
   varTree->Branch("Spherocity", &Spherocity);
   varTree->Branch("MtLeadLepMET", &MtLeadLepMET);
   auto varTree_SR1 = new TTree("varTree_SR1", "Input Variables List for Algorithms SR1");
+  varTree_SR1->Branch("D0El_SR1", &d0el_SR1);
+  varTree_SR1->Branch("D0Mu_SR1", &d0mu_SR1);
   varTree_SR1->Branch("HtJet_SR1", &HtJet_SR1);
   varTree_SR1->Branch("dRLL_SR1", &dRLL_SR1);
   varTree_SR1->Branch("dPhiLepMETSelObj_SR1", &dPhiLepMETSelObj_SR1);
@@ -149,6 +153,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
   varTree_SR1->Branch("Spherocity_SR1", &Spherocity_SR1);
   varTree_SR1->Branch("MtLeadLepMET_SR1", &MtLeadLepMET_SR1);
   auto varTree_SR2 = new TTree("varTree_SR2", "Input Variables List for Algorithms SR2");
+  varTree_SR2->Branch("D0El_SR2", &d0el_SR2);
+  varTree_SR2->Branch("D0Mu_SR2", &d0mu_SR2);
   varTree_SR2->Branch("HtJet_SR2", &HtJet_SR2);
   varTree_SR2->Branch("dRLL_SR2", &dRLL_SR2);
   varTree_SR2->Branch("dPhiLepMETSelObj_SR2", &dPhiLepMETSelObj_SR2);
@@ -159,6 +165,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
   varTree_SR2->Branch("Spherocity_SR2", &Spherocity_SR2);
   varTree_SR2->Branch("MtLeadLepMET_SR2", &MtLeadLepMET_SR2);
   auto varTree_SR3 = new TTree("varTree_SR3", "Input Variables List for Algorithms SR3");
+  varTree_SR3->Branch("D0El_SR3", &d0el_SR3);
+  varTree_SR3->Branch("D0Mu_SR3", &d0mu_SR3);
   varTree_SR3->Branch("HtJet_SR3", &HtJet_SR3);
   varTree_SR3->Branch("dRLL_SR3", &dRLL_SR3);
   varTree_SR3->Branch("dPhiLepMETSelObj_SR3", &dPhiLepMETSelObj_SR3);
@@ -290,6 +298,14 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
     } // End lepton loop
 
     MtLeadLepMET = TMath::Sqrt(2*MET*PT->at(firstPos)*(1-TMath::Cos(lep1.DeltaPhi(metVec))));
+    if(TMath::Abs(PID->at(firstPos))==11) {
+      d0el = TMath::Abs(D0->at(firstPos));
+      d0mu = TMath::Abs(D0->at(secondPos));
+    }
+    if(TMath::Abs(PID->at(firstPos))==13) {
+      d0mu = TMath::Abs(D0->at(firstPos));
+      d0el = TMath::Abs(D0->at(secondPos));
+    }
 
     // Loop to fill variables dependent on all leptons in the event
     for(int jetCtr=0; jetCtr<numJet; jetCtr++) {
@@ -340,6 +356,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
 
     // Fill the corresponding signal tree
     if(isSignal && signalRegion==4) {
+      d0el_SR3 = d0el;
+      d0mu_SR3 = d0mu;
       HtJet_SR3 = HtJet;
       dRLL_SR3 = dRLL;
       dPhiLepMETSelObj_SR3 = dPhiLepMETSelObj;
@@ -352,6 +370,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
       varTree_SR3->Fill();
     }
     if(isSignal && signalRegion==3) {
+      d0el_SR2 = d0el;
+      d0mu_SR2 = d0mu;
       HtJet_SR2 = HtJet;
       dRLL_SR2 = dRLL;
       dPhiLepMETSelObj_SR2 = dPhiLepMETSelObj;
@@ -364,6 +384,8 @@ int Calculator::yieldCalc(TChain* signal, TString outFileName, bool isSignal) {
       varTree_SR2->Fill();
     }
     if(isSignal && signalRegion==2) {
+      d0el_SR1 = d0el;
+      d0mu_SR1 = d0mu;
       HtJet_SR1 = HtJet;
       dRLL_SR1 = dRLL;
       dPhiLepMETSelObj_SR1 = dPhiLepMETSelObj;

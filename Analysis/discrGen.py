@@ -14,7 +14,8 @@ import seaborn as sn
 import pandas as pd
 
 from ROOT import TFile, TTree, TChain
-from ROOT import TH1D, TCanvas
+from ROOT import TH1D, TH2D, TCanvas
+from ROOT import gDirectory
 
 import os
 import sys
@@ -35,9 +36,11 @@ def yieldCalc(rootFileName, crossSec, nSimu):
     nEvent = luminosity*crossSec
     wt = nEvent/nSimu
 
+    signal_Chain = TChain("varTree")
     signal_SR1_Chain = TChain("varTree_SR1")
     signal_SR2_Chain = TChain("varTree_SR2")
     signal_SR3_Chain = TChain("varTree_SR3")
+    signal_Chain.Add("../"+rootFileName+".root")
     signal_SR1_Chain.Add("../"+rootFileName+".root")
     signal_SR2_Chain.Add("../"+rootFileName+".root")
     signal_SR3_Chain.Add("../"+rootFileName+".root")
@@ -49,11 +52,36 @@ def yieldCalc(rootFileName, crossSec, nSimu):
     signal_SR3_SampleSize = signal_SR3_Chain.GetEntries()
     background_SampleSize = background_Chain.GetEntries()
 
+    # Include 2d D0 plots
+    bins2D = np.array([0.01,0.1,0.2,0.5,1.0,100.0,1000.0])
+    nbins2D = 6
+    d02d = TH2D("d02d","d02d",nbins2D,bins2D,nbins2D,bins2D)
+    d02d_SR1 = TH2D("d02d_SR1","d02d_SR1",nbins2D,bins2D,nbins2D,bins2D)
+    d02d_SR2 = TH2D("d02d_SR2","d02d_SR2",nbins2D,bins2D,nbins2D,bins2D)
+    d02d_SR3 = TH2D("d02d_SR3","d02d_SR3",nbins2D,bins2D,nbins2D,bins2D)
+    signal_Chain.Draw("D0El:D0Mu>>d02d")
+    signal_SR1_Chain.Draw("D0El_SR1:D0Mu_SR1>>d02d_SR1")
+    signal_SR2_Chain.Draw("D0El_SR2:D0Mu_SR2>>d02d_SR2")
+    signal_SR3_Chain.Draw("D0El_SR3:D0Mu_SR3>>d02d_SR3")
+    d02d = gDirectory.Get("d02d")
+    d02d_SR1 = gDirectory.Get("d02d_SR1")
+    d02d_SR2 = gDirectory.Get("d02d_SR2")
+    d02d_SR3 = gDirectory.Get("d02d_SR3")
+    
     signal_SR1_Full = signal_SR1_Chain.AsMatrix()
+    signal_SR1_Full = np.transpose(signal_SR1_Full)
+    signal_SR1_Full = signal_SR1_Full[2:11]
+    signal_SR1_Full = np.transpose(signal_SR1_Full)
     #print(signal_SR1_Full.shape)
     signal_SR2_Full = signal_SR2_Chain.AsMatrix()
+    signal_SR2_Full = np.transpose(signal_SR2_Full)
+    signal_SR2_Full = signal_SR2_Full[2:11]
+    signal_SR2_Full = np.transpose(signal_SR2_Full)
     #print(signal_SR2_Full.shape)
     signal_SR3_Full = signal_SR3_Chain.AsMatrix()
+    signal_SR3_Full = np.transpose(signal_SR3_Full)
+    signal_SR3_Full = signal_SR3_Full[2:11]
+    signal_SR3_Full = np.transpose(signal_SR3_Full)
     #print(signal_SR3_Full.shape)
     background_Full = background_Chain.AsMatrix()
     #print(background_Full.shape)
@@ -163,6 +191,10 @@ def yieldCalc(rootFileName, crossSec, nSimu):
     signal_SR2_histo.Write()
     signal_SR3_histo.Write()
     background_histo.Write()
+    d02d.Write()
+    d02d_SR1.Write()
+    d02d_SR2.Write()
+    d02d_SR3.Write()
     discFile.Close()
 
     #return [signalYield_SR1,signalYield_SR2,signalYield_SR3]

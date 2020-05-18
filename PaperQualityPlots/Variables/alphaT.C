@@ -73,14 +73,17 @@ void alphaT()
    alphaT0__26->SetMinimum(0.002);
    alphaT0__26->SetMaximum(1);
    alphaT0__26->SetEntries(4108);
+   PT0__1->SetLineColor(1);
    alphaT0__26->SetLineWidth(3);
    alphaT0__26->GetXaxis()->SetRange(1,26);
+   PT0__1->GetXaxis()->SetTicks("-");
    alphaT0__26->GetXaxis()->SetLabelFont(42);
    alphaT0__26->GetXaxis()->SetLabelOffset(-0.07);
    alphaT0__26->GetXaxis()->SetLabelSize(0.055);
    alphaT0__26->GetXaxis()->SetTitleSize(0.035);
    alphaT0__26->GetXaxis()->SetTitleOffset(1);
    alphaT0__26->GetXaxis()->SetTitleFont(42);
+   PT0__1->GetYaxis()->SetTicks("+");
    alphaT0__26->GetYaxis()->SetLabelFont(42);
    alphaT0__26->GetYaxis()->SetLabelOffset(-0.05);
    alphaT0__26->GetYaxis()->SetLabelSize(0.055);
