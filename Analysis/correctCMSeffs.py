@@ -5,11 +5,23 @@ import math
 
 file1= rt.TFile("HEPData-ins1317640-v1-Table_5.root","READ")
 #file1.ls()
-histoele= file1.Get("Table 5/Hist1D_y1")
+histoele= file1.Get("Table 5/Hist1D_y1") # in cm!!
 file2= rt.TFile("HEPData-ins1317640-v1-Table_6.root","READ")
 #file2.ls()
-histomu= file2.Get("Table 6/Hist1D_y1")
+histomu= file2.Get("Table 6/Hist1D_y1") # in cm!!
 
+maxvald0ele=0.05
+maxvald0muo=0.5
+transitionmu=20.0
+transitionele=10.0
+startvald0ele=histoele.GetBinContent(histoele.GetXaxis().FindBin(0.1*transitionele))
+startvald0muo=histomu.GetBinContent(histomu.GetXaxis().FindBin(0.1*transitionmu-0.00001)) # 0.0001 is there to not end up in overflow bin
+ricoele=(maxvald0ele-startvald0ele)/(100.-transitionele)
+ricomuo=(maxvald0muo-startvald0muo)/(100.-transitionmu)
+#print(maxvald0ele,maxvald0muo,transitionmu,transitionele,startvald0ele,startvald0muo,ricoele,ricomuo)
+print("efficiency value at high DO values:")
+print("muons: straight line from ",transitionmu,"mm, with eff=",maxvald0muo," at 100 mm")
+print("electrons: straight line from ",transitionele,"mm, with eff=",maxvald0ele," at 100 mm")
 SR1low=0.2
 SR2low=0.5
 SR3low=1.0
@@ -42,6 +54,17 @@ for filename in filelist:
             
             weightel = histoele.GetBinContent(min(histoele.GetXaxis().FindBin(0.1*ev.D0El),20))
             weightmu = histomu.GetBinContent(min(histomu.GetXaxis().FindBin(0.1*ev.D0Mu),20))
+            if ev.D0El > transitionele : # beyond 1 cm correct and just use a straight line with fixed value at 10 cm
+                weightel = startvald0ele+(ricoele*(ev.D0El-transitionele))
+#                if abs(ev.D0El - transitionele) < 0.1 or abs(ev.D0El - SR3high) < 1. :
+#                    print("electrons weight ", weightel,  ev.D0El," mm" )
+
+            if ev.D0Mu > transitionmu : # beyond 2 cm correct and just use a straight line with fixed value at 10 cm
+                weightmu = startvald0muo +(ricomuo*(ev.D0Mu-transitionmu))
+#                if abs(ev.D0Mu - SR3high) < 1. :
+#                    print("muons weight ", weightmu,  ev.D0Mu," cm" )
+#        
+                
             weight = weightel * weightmu
 #            print(ev.D0El,ev.D0Mu,weight)
             if ev.D0El > SR3high :
