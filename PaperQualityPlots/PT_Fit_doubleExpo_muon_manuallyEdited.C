@@ -1,4 +1,4 @@
-void PT_Fit_doubleExpo_muon_new()
+void PT_Fit_doubleExpo_muon_manuallyEdited()
 {
 //=========Macro generated from canvas: c1_n3/c1_n3
 //=========  (Mon Feb 17 16:40:46 2020) by ROOT version 6.18/04
@@ -96,8 +96,8 @@ void PT_Fit_doubleExpo_muon_new()
    muohisto1dpt__2->SetBinContent(101,17);
    muohisto1dpt__2->SetEntries(148057);
 
-    muohisto1dpt__2->SetXTitle("muon p_{T} [GeV/c]");
-    muohisto1dpt__2->SetYTitle("events (arbitrary units)");
+    muohisto1dpt__2->SetXTitle("muon p_{T} [GeV]");
+    muohisto1dpt__2->SetYTitle("simulated no. of events");
    
    TF1 *fitfuncmuo2 = new TF1("fitfuncmuo","expo(0)+expo(2)",20,100, TF1::EAddToList::kNo);
     
@@ -159,13 +159,14 @@ void PT_Fit_doubleExpo_muon_new()
     TLegend *leg = new TLegend(30,1000);
     leg->SetBorderSize(0);
     leg->SetFillColor(0);
-    leg->AddEntry("","DELPHES","");
     leg->AddEntry(muohisto1dpt__2,"b#bar{b} #rightarrow #mu + X","l" );
-    leg->AddEntry(fitfuncmuo2,"f(p_{T})= a exp(-b)+ c exp(-d)","l");
+    leg->AddEntry(fitfuncmuo2,"f(p_{T})= a exp(-bx)+ c exp(-dx)","l");
 //    leg->AddEntry("","a=8.73 #pm 0.12","");
 //    leg->AddEntry("","b=0.0992 #pm 0.0027","");
 //    leg->AddEntry("","c=13.501 #pm 0.014","");
 //    leg->AddEntry("","d=0.2247 #pm 0.0022","");
     leg->Draw("auto");
    c1_n3->Modified();
+
+   c1_n3->SaveAs("muonPtPlotCleanedUp.pdf");
 }

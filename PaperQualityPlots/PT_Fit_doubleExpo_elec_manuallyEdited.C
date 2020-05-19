@@ -1,4 +1,4 @@
-void PT_Fit_doubleExpo_elec_new()
+void PT_Fit_doubleExpo_elec_manuallyEdited()
 {
 //=========Macro generated from canvas: c1_n2/c1_n2
 //=========  (Mon Feb 17 16:40:46 2020) by ROOT version 6.18/04
@@ -94,8 +94,8 @@ void PT_Fit_doubleExpo_elec_new()
    elehisto1dpt__1->SetBinContent(101,11);
    elehisto1dpt__1->SetEntries(146652);
     elehisto1dpt__1->SetLineWidth(4);
-    elehisto1dpt__1->SetXTitle("electron p_{T} [GeV/c]");
-    elehisto1dpt__1->SetYTitle("events (arbitrary units)");
+    elehisto1dpt__1->SetXTitle("electron p_{T} [GeV]");
+    elehisto1dpt__1->SetYTitle("simulated no. of events");
    
    TF1 *fitfuncele1 = new TF1("fitfuncele","expo(0)+expo(2)",20,100, TF1::EAddToList::kNo);
    fitfuncele1->SetFillColor(19);
@@ -152,12 +152,13 @@ void PT_Fit_doubleExpo_elec_new()
    c1_n2->cd();
    c1_n2->SetSelected(c1_n2);
 
-        TLegend *leg = new TLegend(30,1000);
-        leg->SetBorderSize(0);
-        leg->SetFillColor(0);
-        leg->AddEntry("","DELPHES","");
-        leg->AddEntry(elehisto1dpt__1,"b#bar{b} #rightarrow e + X","l" );
-        leg->AddEntry(fitfuncele1,"f(p_{T})= a exp(-b)+ c exp(-d)","l");
-        leg->Draw("auto");
-        c1_n2->Modified();
+   TLegend *leg = new TLegend(30,1000);
+   leg->SetBorderSize(0);
+   leg->SetFillColor(0);
+   leg->AddEntry(elehisto1dpt__1,"b#bar{b} #rightarrow e + X","l" );
+   leg->AddEntry(fitfuncele1,"f(p_{T})= a exp(-bx)+ c exp(-dx)","l");
+   leg->Draw("auto");
+   c1_n2->Modified();
+
+   c1_n2->SaveAs("electronPtPlotCleanedUp.pdf");
 }
