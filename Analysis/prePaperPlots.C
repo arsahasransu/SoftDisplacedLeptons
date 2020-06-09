@@ -46,9 +46,9 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     for(int ctr=0; ctr<=nD0bins; ctr++) {
       D0xbins[ctr] = TMath::Power(10,TMath::Log10(D0xlow)+D0xdiff*ctr);
     }
-    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",25,20,70));
-    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",25,20,70));
-    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",25,20,70));
+    hist_PT.push_back(new TH1F("PT"+histSuff[fileTypeCtr],"",32,20,100));
+    hist_PT_El.push_back(new TH1F("PT_El"+histSuff[fileTypeCtr],"",32,20,100));
+    hist_PT_Mu.push_back(new TH1F("PT_Mu"+histSuff[fileTypeCtr],"",32,20,100));
     hist_Eta.push_back(new TH1F("Eta"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_El.push_back(new TH1F("Eta_El"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
     hist_Eta_Mu.push_back(new TH1F("Eta_Mu"+histSuff[fileTypeCtr],"",51,-2.6,2.6));
@@ -59,7 +59,7 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     hist_Iso_El.push_back(new TH1F("Iso_El"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_Iso_Mu.push_back(new TH1F("Iso_Mu"+histSuff[fileTypeCtr],"",13,0,0.25));
     hist_PT_Jet.push_back(new TH1F("PT_Jet"+histSuff[fileTypeCtr],"",10,20,40));
-    hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",36,0,180));
+    hist_MET.push_back(new TH1F("MET"+histSuff[fileTypeCtr],"",40,0,400));
   }
 }
 
@@ -357,29 +357,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   //legc2->SetMargin(false);
   legc2->Draw();
   
-  TLegend* legc3;
-  legc3 = new TLegend(legStart+legDiff, 0, legStart+2*legDiff, 1.0, NULL, "brNDC");
-  for(int histCtr=3/*(int)(hist.size()/2.0)*/; histCtr<5/*hist.size()*/; histCtr++) {
-    legc3->AddEntry(hist[histCtr], label[histCtr], "l");
-  }
-  legc3->SetTextSize(0.4);
-  legc3->SetTextFont(42);
-  legc3->SetBorderSize(0);
-  //legc3->SetMargin(false);
-  legc3->Draw();
-
-  TLegend* legc4;
-  legc4 = new TLegend(legStart+2*legDiff, 0, legStart+3*legDiff, 1.0, NULL, "brNDC");
-  for(int histCtr=5/*(int)(hist.size()/2.0)*/; histCtr<hist.size(); histCtr++) {
-    legc4->AddEntry(hist[histCtr], label[histCtr], "l");
-  }
-  legc4->SetTextSize(0.4);
-  legc4->SetTextFont(42);
-  legc4->SetBorderSize(0);
-  //legc4->SetMargin(false);
-  legc4->Draw();
-
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".pdf");
+  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".C");
   delete c1;
 }
 
@@ -395,7 +373,7 @@ void prePaperPlots() {
   histLabel.push_back("DM: (220, 20)");
   histLabel.push_back("DM: (324, 20)");
   //histLabel.push_back("(220, 20, 0.2)");
-  histLabel.push_back("(220, 20)");
+  //histLabel.push_back("(220, 20)");
   //histLabel.push_back("(220, 20, 20)");
   //histLabel.push_back("(220, 20, 200)");
   histLabel.push_back("(220, 40)");
@@ -404,7 +382,7 @@ void prePaperPlots() {
   histColor.push_back(kBlue);
   histColor.push_back(kBlue-7);
   //histColor.push_back(6);
-  histColor.push_back(kRed);
+  //histColor.push_back(kRed);
   //histColor.push_back(28);
   //histColor.push_back(36);
   histColor.push_back(kPink+5);
@@ -413,7 +391,7 @@ void prePaperPlots() {
   histLineStyle.push_back(1);
   histLineStyle.push_back(1);
   //histLineStyle.push_back(1);
-  histLineStyle.push_back(1);
+  //histLineStyle.push_back(1);
   //histLineStyle.push_back(1);
   //histLineStyle.push_back(1);
   histLineStyle.push_back(1);
@@ -422,7 +400,7 @@ void prePaperPlots() {
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_304_324_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_304_324_DM_Batch*.root");
   //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
-  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
   //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");
   //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2m/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2m_Batch*.root");
   dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_180_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_180_220_2cm_Batch*.root");

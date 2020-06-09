@@ -11,7 +11,11 @@ void D0()
    c1->SetFrameBorderMode(0);
   
 // ------------>Primitives in pad: 
-   TPad *pad1 = new TPad("", "",0.09,0.08,1,0.95);
+   TPad *pad1 = new TPad("", "",0.05,0.07,1,0.95);
+   TPad *pad2 = new TPad("", "",0.001,0.08,0.05,0.85);
+   TPad *pad3 = new TPad("", "",0.08,0.001,1,0.073);
+   TPad *pad4 = new TPad("", "",0.001,0.88,1,0.98);
+
    pad1->Draw();
    pad1->cd();
    pad1->Range(0,0,1,1);
@@ -83,14 +87,14 @@ void D0()
    D00__1->SetLineWidth(3);
    D00__1->GetXaxis()->SetTicks("-");
    D00__1->GetXaxis()->SetLabelFont(42);
-   D00__1->GetXaxis()->SetLabelOffset(-0.07);
+   D00__1->GetXaxis()->SetLabelOffset(-0.08);
    D00__1->GetXaxis()->SetLabelSize(0.055);
    D00__1->GetXaxis()->SetTitleSize(0.035);
    D00__1->GetXaxis()->SetTitleOffset(1);
    D00__1->GetXaxis()->SetTitleFont(42);
    D00__1->GetYaxis()->SetTicks("+");
    D00__1->GetYaxis()->SetLabelFont(42);
-   D00__1->GetYaxis()->SetLabelOffset(-0.05);
+   D00__1->GetYaxis()->SetLabelOffset(-0.04);
    D00__1->GetYaxis()->SetLabelSize(0.055);
    D00__1->GetYaxis()->SetTitleSize(0.035);
    D00__1->GetYaxis()->SetTitleFont(42);
@@ -831,8 +835,6 @@ void D0()
    pad1->Modified();
    c1->cd();
   
-// ------------>Primitives in pad: 
-   TPad *pad2 = new TPad("", "",0.001,0.08,0.08,0.85);
    pad2->Draw();
    pad2->cd();
    pad2->Range(0,0,1,1);
@@ -840,17 +842,15 @@ void D0()
    pad2->SetBorderMode(0);
    pad2->SetBorderSize(2);
    pad2->SetFrameBorderMode(0);
-      tex = new TLatex(0.7,0.3,"normalized no. of events");
+      tex = new TLatex(0.8,0.4,"normalized no. of events");
    tex->SetTextFont(42);
-   tex->SetTextSize(0.45);
+   tex->SetTextSize(0.65);
    tex->SetTextAngle(90);
    tex->SetLineWidth(2);
    tex->Draw();
    pad2->Modified();
    c1->cd();
   
-// ------------>Primitives in pad: 
-   TPad *pad3 = new TPad("", "",0.08,0.001,1,0.08);
    pad3->Draw();
    pad3->cd();
    pad3->Range(0,0,1,1);
@@ -866,8 +866,6 @@ void D0()
    pad3->Modified();
    c1->cd();
   
-// ------------>Primitives in pad: 
-   TPad *pad4 = new TPad("", "",0.001,0.88,1,0.98);
    pad4->Draw();
    pad4->cd();
    pad4->Range(0,0,1,1);

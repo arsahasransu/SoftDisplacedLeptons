@@ -12,6 +12,16 @@ void PT_Fit_doubleExpo_elec_manuallyEdited()
    c1_n2->SetLogy();
    c1_n2->SetFrameBorderMode(0);
    
+   TPad *pad = new TPad("", "",0.001,0.05,1,1);
+   pad->Draw();
+   pad->cd();
+   pad->Range(0,0,1,1);
+   pad->SetFillColor(0);
+   pad->SetBorderMode(0);
+   pad->SetBorderSize(2);
+   pad->SetLogy();
+   pad->SetFrameBorderMode(0);
+   
    TH1F *elehisto1dpt__1 = new TH1F("elehisto1dpt__1","",100,0,100);
    elehisto1dpt__1->SetBinContent(16,34697);
    elehisto1dpt__1->SetBinContent(17,25771);
@@ -93,16 +103,16 @@ void PT_Fit_doubleExpo_elec_manuallyEdited()
    elehisto1dpt__1->SetBinContent(100,2);
    elehisto1dpt__1->SetBinContent(101,11);
    elehisto1dpt__1->SetEntries(146652);
-    elehisto1dpt__1->SetLineWidth(4);
-    elehisto1dpt__1->SetXTitle("electron p_{T} [GeV]");
-    elehisto1dpt__1->SetYTitle("simulated no. of events");
+   elehisto1dpt__1->SetLineWidth(4);
+   elehisto1dpt__1->SetXTitle("");
+   elehisto1dpt__1->SetYTitle("");
    
    TF1 *fitfuncele1 = new TF1("fitfuncele","expo(0)+expo(2)",20,100, TF1::EAddToList::kNo);
    fitfuncele1->SetFillColor(19);
    fitfuncele1->SetFillStyle(0);
    fitfuncele1->SetLineColor(2);
    fitfuncele1->SetLineWidth(4);
-    fitfuncele1->SetLineStyle(3);
+    fitfuncele1->SetLineStyle(2);
    fitfuncele1->SetChisquare(78.35336);
    fitfuncele1->SetNDF(69);
    fitfuncele1->GetXaxis()->SetLabelFont(42);
@@ -128,19 +138,24 @@ void PT_Fit_doubleExpo_elec_manuallyEdited()
    fitfuncele1->SetParLimits(3,-0.2328546,0);
    fitfuncele1->SetParent(elehisto1dpt__1);
    elehisto1dpt__1->GetListOfFunctions()->Add(fitfuncele1);
+   fitfuncele1->Print();
+   std::cout<<fitfuncele1->GetParameter(0)<<std::endl;
+   std::cout<<fitfuncele1->GetParameter(1)<<std::endl;
+   std::cout<<fitfuncele1->GetParameter(2)<<std::endl;
+   std::cout<<fitfuncele1->GetParameter(3)<<std::endl;
 
    Int_t ci;      // for color index setting
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    elehisto1dpt__1->SetLineColor(ci);
    elehisto1dpt__1->GetXaxis()->SetLabelFont(42);
-   elehisto1dpt__1->GetXaxis()->SetLabelSize(0.035);
-   elehisto1dpt__1->GetXaxis()->SetTitleSize(0.035);
+   elehisto1dpt__1->GetXaxis()->SetLabelSize(0.05);
+   elehisto1dpt__1->GetXaxis()->SetTitleSize(0.045);
    elehisto1dpt__1->GetXaxis()->SetTitleOffset(1);
    elehisto1dpt__1->GetXaxis()->SetTitleFont(42);
    elehisto1dpt__1->GetYaxis()->SetLabelFont(42);
-   elehisto1dpt__1->GetYaxis()->SetLabelSize(0.035);
-   elehisto1dpt__1->GetYaxis()->SetTitleSize(0.035);
+   elehisto1dpt__1->GetYaxis()->SetLabelSize(0.05);
+   elehisto1dpt__1->GetYaxis()->SetTitleSize(0.045);
    elehisto1dpt__1->GetYaxis()->SetTitleFont(42);
    elehisto1dpt__1->GetZaxis()->SetLabelFont(42);
    elehisto1dpt__1->GetZaxis()->SetLabelSize(0.035);
@@ -149,16 +164,61 @@ void PT_Fit_doubleExpo_elec_manuallyEdited()
    elehisto1dpt__1->GetZaxis()->SetTitleFont(42);
    elehisto1dpt__1->Draw("");
    c1_n2->Modified();
-   c1_n2->cd();
    c1_n2->SetSelected(c1_n2);
 
-   TLegend *leg = new TLegend(30,1000);
+   TLegend *leg = new TLegend(0.38, 0.6, 0.89, 0.89);
    leg->SetBorderSize(0);
    leg->SetFillColor(0);
-   leg->AddEntry(elehisto1dpt__1,"b#bar{b} #rightarrow e + X","l" );
-   leg->AddEntry(fitfuncele1,"f(p_{T})= a exp(-bx)+ c exp(-dx)","l");
-   leg->Draw("auto");
+   auto entry = leg->AddEntry("","b#bar{b} #rightarrow e + X","l" );
+   entry->SetTextFont(42);
+   entry->SetTextSize(0.045);
+   entry->SetMarkerStyle(0);
+   entry->SetLineWidth(3);
+   entry->SetLineColor(ci);
+   entry = leg->AddEntry(""," e#scale[1.3]{^{13.65 - 0.23 #upoint p}}^{_{T}} + e#scale[1.3]{^{8.62 - 0.10 #upoint p}}^{_{T}}","l");
+   entry->SetTextFont(42);
+   entry->SetTextSize(0.045);
+   entry->SetMarkerStyle(0);
+   entry->SetLineWidth(4);
+   entry->SetLineStyle(2);
+   entry->SetLineColor(2);
+   leg->Draw();
    c1_n2->Modified();
+   c1_n2->cd();
+
+   TPad *pad2 = new TPad("", "",0,0,0.05,1);
+   pad2->Draw();
+   pad2->cd();
+   pad2->Range(0,0,1,1);
+   pad2->SetFillColor(0);
+   pad2->SetBorderMode(0);
+   pad2->SetBorderSize(2);
+   pad2->SetFrameBorderMode(0);
+   TLatex *   tex = new TLatex(0.7,0.75,"entries");
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.73);
+   tex->SetTextAngle(90);
+   tex->SetLineWidth(2);
+   tex->Draw();
+   pad2->Modified();
+   c1_n2->cd();
+  
+// ------------>Primitives in pad3: 
+   TPad *pad3 = new TPad("", "",0.1,0,1,0.1);
+   pad3->Draw();
+   pad3->cd();
+   pad3->Range(0,0,1,1);
+   pad3->SetFillColor(0);
+   pad3->SetBorderMode(0);
+   pad3->SetBorderSize(2);
+   pad3->SetFrameBorderMode(0);
+      tex = new TLatex(0.631,0.5,"electron p_{T} [GeV]");
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.5);
+   tex->SetLineWidth(2);
+   tex->Draw();
+   pad3->Modified();
+   c1_n2->cd();
 
    c1_n2->SaveAs("electronPtPlotCleanedUp.pdf");
 }

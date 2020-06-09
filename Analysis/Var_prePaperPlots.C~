@@ -1,0 +1,558 @@
+#include "TMatrixD.h"
+#include "TLorentzVector.h"
+#include "TFile.h"
+#include "TH1D.h"
+#include "TChain.h"
+#include "TTree.h"
+#include "TROOT.h"
+#include "TVectorD.h"
+
+#include <iostream>
+
+// Functions required for computing sphericity and spherocity
+TMatrixD makeMomentumTensor3D(std::vector<TLorentzVector*> lvarray) {
+  TMatrixD total(3,3);
+  double normaliser = 0.0;
+  TVector3 vect;
+
+  for(int ii=0; ii<3; ii++) {
+    for(int jj=0; jj<3; jj++) {
+      normaliser=0.0;
+      total[ii][jj]=0.0;
+      for(unsigned int vec=0; vec<lvarray.size(); vec++) {
+	vect = lvarray[vec]->Vect();
+	total[ii][jj] += vect[ii]*vect[jj];
+	normaliser += vect.Mag()*vect.Mag();
+      }
+      if(normaliser>0) {
+	total[ii][jj] /= normaliser;
+      }
+    }
+  }
+  return total;
+}
+
+// Functions required for computing sphericity and spherocity
+double sphericity(std::vector<TLorentzVector*> lvarray) {
+  TMatrixD total = makeMomentumTensor3D(lvarray);
+
+  TVectorD eigenvals;
+  auto eigenvectors = total.EigenVectors(eigenvals);
+
+  double sphericity = 1.5*(eigenvals[1]+eigenvals[2]);
+  return sphericity;
+}
+
+double transversespherocity(std::vector<TLorentzVector*> lvarray) {
+
+  Double_t lowestval = 100000000.0;
+
+  TVector3 workvec;
+  double workerNumerator = 0.0;
+  double workerDenominator = 0.0;
+  TVector3 unitvec;
+
+  for(unsigned int vecCtr=0; vecCtr<lvarray.size(); vecCtr++) {
+    TLorentzVector* candvec = lvarray[vecCtr];
+
+    unitvec.SetXYZ(candvec->Px()/candvec->Pt(), candvec->Py()/candvec->Pt(), 0.0);
+    workvec.SetXYZ(0, 0, 0);
+    workerNumerator = 0.0;
+    workerDenominator = 0.0;
+
+    for(unsigned int vecCtr2=0; vecCtr2<lvarray.size(); vecCtr2++) {
+      TLorentzVector* workLVvec = lvarray[vecCtr2];
+
+      workerDenominator += workLVvec->Pt();
+      workvec.SetXYZ(workLVvec->Px(), workLVvec->Py(), 0.0);
+      workerNumerator += workvec.Cross(unitvec).Mag();
+    }
+    lowestval = TMath::Min(lowestval, workerNumerator/workerDenominator);
+  }
+
+  double spherocity = TMath::Power(lowestval*TMath::Pi()*0.5, 2);
+  return spherocity;
+}
+
+class plotVarDisb_Objects {
+public:
+  // Define Methods
+  plotVarDisb_Objects(int);
+  ~plotVarDisb_Objects();
+  void readTreeFillHist(TChain*, int);
+  void plotBeautifier(std::vector<TH1F*>, std::vector<TString>,
+		      TString, TString, TString,
+		      std::vector<int>, std::vector<int>, 
+		      bool, bool, bool, bool);
+
+  void d0_weight(double eled0, double muod0,
+		 std::vector<double> &);
+
+  // Declare histogram suffix
+  std::vector<TString> histSuff;
+  
+  // Regular Lepton Kinematics
+  std::vector<TH1F*> hist_HTJet;
+  std::vector<TH1F*> hist_dRll;
+  std::vector<TH1F*> hist_dPhiLepMETSelObj;
+  std::vector<TH1F*> hist_YDelpObj;
+  std::vector<TH1F*> hist_YUserObj;
+  std::vector<TH1F*> hist_alphaT;
+  std::vector<TH1F*> hist_Sphericity;
+  std::vector<TH1F*> hist_Spherocity;
+  std::vector<TH1F*> hist_MtLeadLepMET;
+
+  // Histogram for weight
+  TH1D* weightd0eleCMS;
+  TH1D* weightd0muoCMS;
+  TH1D* weightd0eleFreya;
+  TH1D* weightd0muoFreya;
+  TH1D* weightd0eleNishita;
+  TH1D* weightd0muoNishita;
+
+};
+
+// Define the constructor
+plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
+
+  // Define Histograms
+  for(int fileTypeCtr=0; fileTypeCtr<fileTypeNum; fileTypeCtr++) {
+    TString temp = std::to_string(fileTypeCtr);
+    histSuff.push_back(temp);
+
+    hist_HTJet.push_back(new TH1F("HTJet"+histSuff[fileTypeCtr],"",16,20,100));
+    hist_dRll.push_back(new TH1F("dRll"+histSuff[fileTypeCtr],"",30,0,5));
+    hist_dPhiLepMETSelObj.push_back(new TH1F("dPhiLepMETSelObj"+histSuff[fileTypeCtr],"",50,0,TMath::Pi()));
+    hist_YDelpObj.push_back(new TH1F("YDelpObj"+histSuff[fileTypeCtr],"",25,0,25));
+    hist_YUserObj.push_back(new TH1F("YUserObj"+histSuff[fileTypeCtr],"",20,0,10));
+    hist_alphaT.push_back(new TH1F("alphaT"+histSuff[fileTypeCtr],"",25,0,1.25));
+    hist_Sphericity.push_back(new TH1F("Sphericity"+histSuff[fileTypeCtr],"",50,0,1));
+    hist_Spherocity.push_back(new TH1F("Spherocity"+histSuff[fileTypeCtr],"",50,0,1));
+    hist_MtLeadLepMET.push_back(new TH1F("MtLeadLepMET"+histSuff[fileTypeCtr],"",25,0,200));
+  }
+
+  auto eleFileCMS = TFile::Open("./Analysis/HEPData-ins1317640-v1-Table_5.root", "READ");
+  weightd0eleCMS = (TH1D*) eleFileCMS->Get("Table 5/Hist1D_y1");
+  auto muoFileCMS = TFile::Open("./Analysis/HEPData-ins1317640-v1-Table_6.root", "READ");
+  weightd0muoCMS = (TH1D*) muoFileCMS->Get("Table 6/Hist1D_y1");
+
+  auto fileFreya = TFile::Open("./Analysis/d0weightFreya.root", "READ");
+  weightd0eleFreya = (TH1D*) fileFreya->Get("d0EffEleFreya");
+  weightd0muoFreya = (TH1D*) fileFreya->Get("d0EffMuoFreya");
+
+  auto fileNishita = TFile::Open("./Analysis/d0weightNishita.root", "READ");
+  weightd0eleNishita = (TH1D*) fileNishita->Get("d0EffEleNishita");
+  weightd0muoNishita = (TH1D*) fileNishita->Get("d0EffMuoNishita");
+
+}
+
+void plotVarDisb_Objects::d0_weight(double eled0, double muod0, std::vector<double> &weight) {
+
+  //double weight[6];
+  
+  eled0 = TMath::Abs(eled0);
+  muod0 = TMath::Abs(muod0);
+  eled0 = eled0/10.0;
+  muod0 = muod0/10.0;
+  int bin = 0;
+
+  bin = weightd0eleCMS->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleCMS->GetBinContent(bin));
+  bin = weightd0muoCMS->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoCMS->GetBinContent(bin));
+
+  bin = weightd0eleFreya->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleFreya->GetBinContent(bin));
+  bin = weightd0muoFreya->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoFreya->GetBinContent(bin));
+
+  bin = weightd0eleNishita->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleNishita->GetBinContent(bin));
+  bin = weightd0muoNishita->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoNishita->GetBinContent(bin));
+}
+
+// Read from Tree and Fill Histogram
+void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr) {
+
+  // Declare variables to read from the trees
+  int numElec, numMuon, numJet;
+  double MET, MET_Eta, MET_Phi, HT;
+  std::vector<int> *PID = 0;
+  std::vector<double> *E = 0;
+  std::vector<double> *PT = 0;
+  std::vector<double> *Eta = 0;
+  std::vector<double> *Phi = 0;
+  std::vector<double> *Iso = 0;
+  std::vector<double> *D0 = 0;
+  std::vector<double> *Dz = 0;
+  std::vector<double> *JetPT = 0;
+  std::vector<double> *JetM = 0;
+  std::vector<double> *JetEta = 0;
+  std::vector<double> *JetPhi = 0;
+
+  // Link the defined variables to the leaf on trees
+  tree->SetBranchAddress("NumElec",&numElec);
+  tree->SetBranchAddress("NumMuon",&numMuon);
+  tree->SetBranchAddress("MET", &MET);
+  tree->SetBranchAddress("MET_Eta", &MET_Eta);
+  tree->SetBranchAddress("MET_Phi", &MET_Phi);
+  tree->SetBranchAddress("PID", &PID);
+  tree->SetBranchAddress("simulatedE", &E);
+  tree->SetBranchAddress("PT", &PT);
+  tree->SetBranchAddress("Eta", &Eta);
+  tree->SetBranchAddress("Phi", &Phi);
+  tree->SetBranchAddress("Iso", &Iso);
+  tree->SetBranchAddress("D0", &D0);
+  tree->SetBranchAddress("Dz", &Dz);
+  tree->SetBranchAddress("HT", &HT);
+  tree->SetBranchAddress("NumJet", &numJet);
+  tree->SetBranchAddress("JetEta", &JetEta);
+  tree->SetBranchAddress("JetPhi", &JetPhi);
+  tree->SetBranchAddress("JetPT", &JetPT);
+  tree->SetBranchAddress("JetM", &JetM);
+
+  // Statistic variable
+  int SelectedEvents = 0;
+
+  // Open Event Loop
+  for(int evtCtr=0; evtCtr<tree->GetEntries(); evtCtr++) {
+
+    if(evtCtr%100000==0) cout<<tree->GetEntries()<<" total. Ongoing event: "<<evtCtr<<endl; 
+    
+    tree->GetEntry(evtCtr);
+    double lenObj = PID->size();
+
+    // Select for good leptons
+    bool foundGoodLep = false;
+    int firstPos=-1;
+    int secondPos=-1;
+    int numGoodLep = 0;
+    int numGoodEl = 0;
+    int numGoodMu = 0;
+
+    for(int objCtr=0; objCtr<lenObj; objCtr++) {
+      if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
+      if(PT->at(objCtr)<20) continue;
+      if(TMath::Abs(D0->at(objCtr))>100) continue;
+
+      numGoodLep++;
+      if(TMath::Abs(PID->at(objCtr))==11) numGoodEl++;
+      if(TMath::Abs(PID->at(objCtr))==13) numGoodMu++;
+
+      if(firstPos==-1) {
+	firstPos = objCtr;
+	continue;
+      }
+      if(secondPos==-1) {
+	if(PID->at(firstPos)*PID->at(objCtr) != -11*13) continue;
+	secondPos = objCtr;
+	foundGoodLep = true;
+	break;
+      }
+      cout<<"neverprint"<<endl;
+    }
+    
+    if(foundGoodLep==false) continue;
+
+
+    SelectedEvents++;
+
+    // For the selected (e,mu) pair of leptons
+    double htlep = 0.0, htjet = 0.0;
+    std::vector<TLorentzVector*> lepvec;
+    TLorentzVector lep1;
+    lep1.SetPtEtaPhiE(PT->at(firstPos), Eta->at(firstPos), Phi->at(firstPos), E->at(firstPos));
+    TLorentzVector lep2;
+    lep2.SetPtEtaPhiE(PT->at(secondPos), Eta->at(secondPos), Phi->at(secondPos), E->at(secondPos));
+    TLorentzVector lepSum, jetSum, objSum, METvec;
+    METvec.SetPtEtaPhiE(MET, MET_Eta, MET_Phi, MET);
+    lepvec.push_back(&lep1);
+    lepvec.push_back(&lep2);
+
+    double d0el = 0.0, d0mu = 0.0;
+    if(TMath::Abs(PID->at(firstPos))==11){
+      d0el = TMath::Abs(D0->at(firstPos));
+      d0mu = TMath::Abs(D0->at(secondPos));
+    }
+    if(TMath::Abs(PID->at(firstPos))==13){
+      d0mu = TMath::Abs(D0->at(firstPos));
+      d0el = TMath::Abs(D0->at(secondPos));
+    }
+    std::vector<double> weightd0;
+    d0_weight(d0el, d0mu, weightd0);
+    hist_dRll[fileTypeCtr]->Fill(TMath::Abs(lep1.DeltaR(lep2)), weightd0[4]*weightd0[5]);
+
+    // Loop to fill variables dependent on all leptons in the event
+    for(int objCtr=0; objCtr<lenObj; objCtr++) {
+      if(TMath::Abs(Eta->at(objCtr))>2.4) continue;
+      if(PT->at(objCtr)<20) continue;
+      if(TMath::Abs(D0->at(objCtr))>100) continue;
+      
+      TLorentzVector lepSingle;
+      lepSingle.SetPtEtaPhiE(PT->at(objCtr), Eta->at(objCtr), Phi->at(objCtr), E->at(objCtr));
+      lepSum += lepSingle;
+      htlep += PT->at(objCtr);
+      
+    } // End lepton loop
+
+    // Fill Histogram for good jet when a good event is found based on Leptonic selection
+    int numGoodJet = 0;
+    int jetFirstPos = -1;
+    int jetSecondPos = -1;
+    for(int jetCtr=0; jetCtr<numJet; jetCtr++) {
+      if(JetPT->at(jetCtr)<20) continue;
+      if(TMath::Abs(JetEta->at(jetCtr))>2.5) continue;
+      
+      numGoodJet++;
+
+      TLorentzVector jetSingle;
+      jetSingle.SetPtEtaPhiM(JetPT->at(jetCtr), JetEta->at(jetCtr), JetPhi->at(jetCtr), JetM->at(jetCtr));
+      jetSum += jetSingle;
+      htjet += JetPT->at(jetCtr);
+
+      if(jetFirstPos==-1) {
+	jetFirstPos = jetCtr;
+	continue;
+      }
+      if(jetFirstPos!=-1 && jetSecondPos==-1) {
+	jetSecondPos = jetCtr;
+	continue;
+      }
+
+    } // End of loop on jets
+
+    objSum = lepSum+jetSum;
+
+    hist_MtLeadLepMET[fileTypeCtr]->Fill(TMath::Sqrt(2*MET*PT->at(firstPos)*(1-TMath::Cos(lep1.DeltaPhi(METvec)))), weightd0[0]*weightd0[1]);
+    if(htjet!=0) hist_HTJet[fileTypeCtr]->Fill(htjet, weightd0[0]*weightd0[1]);
+    hist_dPhiLepMETSelObj[fileTypeCtr]->Fill(TMath::Abs(lep1.DeltaPhi(objSum)), weightd0[0]*weightd0[1]);
+    hist_YDelpObj[fileTypeCtr]->Fill(MET/TMath::Sqrt(HT), weightd0[0]*weightd0[1]);
+    hist_YUserObj[fileTypeCtr]->Fill(TMath::Abs(objSum.Pt())/TMath::Sqrt(htlep), weightd0[0]*weightd0[1]);
+
+    double mt = TMath::Sqrt(htlep*htlep-lepSum.Pt()*lepSum.Pt());
+    hist_alphaT[fileTypeCtr]->Fill(PT->at(secondPos)/mt, weightd0[0]*weightd0[1]);
+    hist_Sphericity[fileTypeCtr]->Fill(sphericity(lepvec), weightd0[0]*weightd0[1]);
+    hist_Spherocity[fileTypeCtr]->Fill(transversespherocity(lepvec), weightd0[0]*weightd0[1]);
+
+
+  } // End of Event Loop
+  std::cout<<"Selected Events: "<<SelectedEvents<<" : out of Total Entries: "<<tree->GetEntries()<<std::endl;
+}
+
+void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TString> label,
+					 TString XaxisTitle, TString YaxisTitle, TString saveName,
+					 std::vector<int> histColor,
+					 std::vector<int> histLineStyle, 
+					 bool ylog=true, bool xlog=false,
+					 bool underflowBin=true, bool overflowBin=true) {
+
+  TCanvas *c1 = new TCanvas("c1", "c1", 10,32,782,600);
+  TPad *pMain = new TPad("","",0.09,0.08,1.0,0.95);
+  TPad *pLeg = new TPad("","",0.001,0.88,1.0,0.98);
+  TPad *pyAxisTitle = new TPad("","",0.001,0.08,0.08,0.85);
+  TPad *pxAxisTitle = new TPad("","",0.08,0.001,1.0,0.08);
+  pMain->Draw();
+  pyAxisTitle->Draw();
+  pxAxisTitle->Draw();
+  pLeg->Draw();
+
+  pMain->cd();
+  for(int histCtr=0; histCtr<hist.size(); histCtr++) {
+    hist[histCtr]->SetLineColor(histColor[histCtr]);
+    hist[histCtr]->SetLineWidth(3);
+    hist[histCtr]->SetLineStyle(histLineStyle[histCtr]);
+    hist[histCtr]->Scale(1.0/hist[histCtr]->Integral());
+    if(underflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX());
+    if(overflowBin) hist[histCtr]->GetXaxis()->SetRange(1, hist[histCtr]->GetNbinsX()+1);
+    if(underflowBin && overflowBin) hist[histCtr]->GetXaxis()->SetRange(0, hist[histCtr]->GetNbinsX()+1);
+    hist[histCtr]->GetYaxis()->SetRangeUser(0.0005,0.2);
+  }
+  hist[0]->SetMaximum(hist[0]->GetMaximum()*5);
+  hist[0]->GetYaxis()->SetTitle("");
+  hist[0]->GetYaxis()->SetTicks("+");
+  hist[0]->GetYaxis()->SetLabelOffset(-0.05);
+  hist[0]->GetYaxis()->SetLabelFont(42);
+  hist[0]->GetYaxis()->SetLabelSize(0.055);
+  hist[0]->GetXaxis()->SetTitle("");
+  hist[0]->GetXaxis()->SetTicks("-");
+  hist[0]->GetXaxis()->SetLabelOffset(-0.07);
+  hist[0]->GetXaxis()->SetLabelFont(42);
+  hist[0]->GetXaxis()->SetLabelSize(0.055);
+  
+  if(ylog) pMain->SetLogy();
+  if(xlog) pMain->SetLogx();
+  gStyle->SetOptStat(0);
+
+  for(int histCtr=0; histCtr<hist.size(); histCtr++) {
+    hist[histCtr]->Draw("hist SAME E");
+  }
+
+  Int_t nx    = hist[0]->GetNbinsX()+1;
+  Double_t bw1 = hist[0]->GetBinWidth(0);
+  Double_t bw2 = hist[0]->GetBinWidth(nx);
+  Double_t x1 = hist[0]->GetBinLowEdge(0)+bw1;
+  Double_t x2 = hist[0]->GetBinLowEdge(nx)+bw2;
+  Double_t y1 = hist[0]->GetBinContent(0)/hist[0]->Integral();
+  Double_t y2 = hist[0]->GetBinContent(nx)/hist[0]->Integral();
+  for(int histCtr=0; histCtr<hist.size(); histCtr++) {
+    y1 = y1>(hist[histCtr]->GetBinContent(0)/hist[histCtr]->Integral())
+      ?y1
+      :(hist[histCtr]->GetBinContent(0)/hist[histCtr]->Integral());
+    y2 = y2>(hist[histCtr]->GetBinContent(nx)/hist[histCtr]->Integral())
+      ?y2
+      :(hist[histCtr]->GetBinContent(nx)/hist[histCtr]->Integral());
+  }
+  y1 = y1*1.1;
+  y2 = y2*1.1;
+
+  if(underflowBin) {
+    TText *tUFlw = new TText(x1-bw1/2,y1,"Underflow");
+    tUFlw->SetTextAngle(90);
+    tUFlw->SetTextAlign(12);
+    tUFlw->SetTextSize(0.045);
+    tUFlw->Draw();
+  }
+
+  if(overflowBin) {
+    TText *OFlw = new TText(x2-bw2/2,y2,"Overflow");
+    OFlw->SetTextAngle(90);
+    OFlw->SetTextAlign(12);
+    OFlw->SetTextSize(0.035);
+    OFlw->Draw();
+  }
+  
+  pxAxisTitle->cd();
+  auto xaxisTitle = new TLatex(0.5,0.4,XaxisTitle);
+  xaxisTitle->SetTextAngle(0);
+  xaxisTitle->SetTextSize(0.6);
+  xaxisTitle->SetTextFont(42);
+  xaxisTitle->Draw();
+
+  pyAxisTitle->cd();
+  auto yaxisTitle = new TLatex(0.7,0.3,YaxisTitle);
+  yaxisTitle->SetTextAngle(90);
+  yaxisTitle->SetTextSize(0.45);
+  yaxisTitle->SetTextFont(42);
+  yaxisTitle->Draw();
+  
+  pLeg->cd();
+  
+  TLegend* legc1;
+  legc1 = new TLegend(0.1, 0.5, 0.4, 1.0, NULL, "brNDC");
+  for(int histCtr=0; histCtr<1/*hist.size()/2.0*/; histCtr++) {
+    legc1->AddEntry(hist[histCtr], label[histCtr], "l");
+  }
+  legc1->SetTextSize(0.4);
+  legc1->SetTextFont(42);
+  legc1->SetBorderSize(0);
+  //legc1->SetMargin(false);
+  legc1->Draw();
+
+  /*
+  TLatex lt;
+  lt.SetTextFont(42);
+  lt.SetTextSize(0.045);
+  lt.DrawLatex(0.01,0.101,"BP syntax (m_{c},#Deltam,c#tau_{c})");
+  
+  TPaveText *pt2 = new TPaveText(0.003,0.08,0.007,0.11);
+  pt2->SetBorderSize(0);
+  pt2->SetFillColor(0);
+  pt2->Draw();
+  */
+  auto abbrvFormat = new TLatex(0.12,0.15,"Signal (m_{c}, #Deltam, c#scale[1.2]{#tau}_{c})");
+  abbrvFormat->SetTextAngle(0);
+  abbrvFormat->SetTextSize(0.4);
+  abbrvFormat->SetTextFont(42);
+  abbrvFormat->Draw();
+
+  float legStart = 0.43;
+  float legDiff = 0.3;
+  
+  TLegend* legc2;
+  legc2 = new TLegend(legStart, 0, legStart+legDiff, 1.0, NULL, "brNDC");
+  for(int histCtr=1/*(int)(hist.size()/2.0)*/; histCtr<3/*hist.size()*/; histCtr++) {
+    legc2->AddEntry(hist[histCtr], label[histCtr], "l");
+  }
+  legc2->SetTextSize(0.4);
+  legc2->SetTextFont(42);
+  legc2->SetBorderSize(0);
+  //legc2->SetMargin(false);
+  legc2->Draw();
+  
+  c1->SaveAs("./Analysis/PaperPlots_Var_wtN/"+saveName+".C");
+  delete c1;
+}
+
+void Var_prePaperPlots() {
+
+  std::vector<TString> histLabel;
+  std::vector<TChain*> t;
+  std::vector<TString> dataPath;
+  std::vector<int> histColor;
+  std::vector<int> histLineStyle;
+
+  histLabel.push_back("HF Background");
+  histLabel.push_back("(220, 20, DM)");
+  histLabel.push_back("(324, 20, DM)");
+  //histLabel.push_back("(220, 20, 0.2)");
+  //histLabel.push_back("(220, 20, x)");
+  //histLabel.push_back("(220, 20, 20)");
+  //histLabel.push_back("(220, 20, 200)");
+  histLabel.push_back("(220, 40, 2)");
+
+  histColor.push_back(1);
+  histColor.push_back(kBlue);
+  histColor.push_back(kBlue-7);
+  //histColor.push_back(6);
+  //histColor.push_back(kRed);
+  //histColor.push_back(28);
+  //histColor.push_back(36);
+  histColor.push_back(kPink+5);
+
+  histLineStyle.push_back(1);
+  histLineStyle.push_back(1);
+  histLineStyle.push_back(1);
+  //histLineStyle.push_back(1);
+  //histLineStyle.push_back(1);
+  //histLineStyle.push_back(1);
+  //histLineStyle.push_back(1);
+  histLineStyle.push_back(1);
+
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/ppTobb_Cuts2/Objects_sorted_ppTobb_Cuts2_*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_DM_Batch*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_304_324_DM/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_304_324_DM_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2mm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2mm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2cm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_20cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_20cm_Batch*.root");
+  //dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_200_220_2m/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_200_220_2m_Batch*.root");
+  dataPath.push_back("/home/arsahasransu/Documents/SoftDisplacedLeptons/Data/DisplacedModel_BP_180_220_2cm/ObjectSorted_Delp341_Mg5v266_PY8243_DisplacedModel_BP_180_220_2cm_Batch*.root");
+
+  for(int ctr=0; ctr<histLabel.size(); ctr++) {
+    t.push_back(new TChain("SelectedObjects"));
+    t[ctr]->Add(dataPath[ctr]);
+    cout<<"Initialized "<<histLabel[ctr]<<" chain"<<endl;
+    std::cout<<"No.of  "<<histLabel[ctr]<<" Entries: "<<t[ctr]->GetEntries()<<std::endl;
+  }
+
+  plotVarDisb_Objects *pVDO = new plotVarDisb_Objects(histLabel.size());
+  pVDO->histSuff = histLabel;
+  cout<<"Initialized instance of plotter class"<<endl;
+
+  for(int ctr=0; ctr<histLabel.size(); ctr++) {
+    pVDO->readTreeFillHist(t[ctr], ctr);
+    cout<<"Filled corresponding "<<histLabel[ctr]<<" histograms"<<endl;
+  }
+
+  // Regular Lepton Kinematics
+  pVDO->plotBeautifier(pVDO->hist_HTJet, histLabel, "#Sigma_{jet} #left|p_{T}#right| [GeV]", "normalized no. of events", "HTJet", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_dRll, histLabel, "#DeltaR(e, #mu)", "normalized no. of events", "dRll", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_dPhiLepMETSelObj, histLabel, "#Delta#phi(l_{1}, #left|#Sigma_{lep+jet}p_{T}#right|)", "normalized no. of events", "dPhiLepMETSelObj", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_YDelpObj, histLabel, "#slash{E}_{T}/#sqrt{H_{T}} [(GeV)^{1/2}]", "normalized no. of events", "YDelpObj", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_YUserObj, histLabel, "#left|#Sigma_{lep+jet}p_{T}#right|/#sqrt{#Sigma_{lep+jet}#left|p_{T}#right|} [(GeV)^{1/2}]", "normalized no. of events", "YUserObj", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_alphaT, histLabel, "#alpha_{T}", "normalized no. of events", "alphaT", histColor, histLineStyle, true, false, false, true);
+  pVDO->plotBeautifier(pVDO->hist_Sphericity, histLabel, "sphericity", "normalized no. of events", "Sphericity", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_Spherocity, histLabel, "spherocity", "normalized no. of events", "Spherocity", histColor, histLineStyle, true, false, false, false);
+  pVDO->plotBeautifier(pVDO->hist_MtLeadLepMET, histLabel, "m_{T}(l_{1}) [GeV]", "normalized no. of events", "MtLeadLepMET", histColor, histLineStyle, true, false, false, true);
+
+}
