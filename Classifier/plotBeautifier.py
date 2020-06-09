@@ -74,7 +74,7 @@ def plotBeautifier(histList,
     tOFlw.SetTextSize(0.03)
     tOFlw.Draw()
     
-    c1.SaveAs(outPlotName+".pdf")
+    c1.SaveAs(outPlotName+".C")
     
     return
 

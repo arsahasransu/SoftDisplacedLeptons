@@ -12,6 +12,16 @@ void PT_Fit_doubleExpo_muon_manuallyEdited()
    c1_n3->SetLogy();
    c1_n3->SetFrameBorderMode(0);
    
+   TPad *pad = new TPad("", "",0.001,0.05,1,1);
+   pad->Draw();
+   pad->cd();
+   pad->Range(0,0,1,1);
+   pad->SetFillColor(0);
+   pad->SetBorderMode(0);
+   pad->SetBorderSize(2);
+   pad->SetLogy();
+   pad->SetFrameBorderMode(0);
+   
    TH1F *muohisto1dpt__2 = new TH1F("muohisto1dpt__2","",100,0,100);
    muohisto1dpt__2->SetLineWidth(4);
    muohisto1dpt__2->SetBinContent(16,34510);
@@ -96,12 +106,9 @@ void PT_Fit_doubleExpo_muon_manuallyEdited()
    muohisto1dpt__2->SetBinContent(101,17);
    muohisto1dpt__2->SetEntries(148057);
 
-    muohisto1dpt__2->SetXTitle("muon p_{T} [GeV]");
-    muohisto1dpt__2->SetYTitle("simulated no. of events");
-   
    TF1 *fitfuncmuo2 = new TF1("fitfuncmuo","expo(0)+expo(2)",20,100, TF1::EAddToList::kNo);
     
-    fitfuncmuo2->SetLineStyle(2);
+   fitfuncmuo2->SetLineStyle(2);
    fitfuncmuo2->SetFillColor(19);
    fitfuncmuo2->SetFillStyle(0);
    fitfuncmuo2->SetLineColor(2);
@@ -131,18 +138,24 @@ void PT_Fit_doubleExpo_muon_manuallyEdited()
    fitfuncmuo2->SetParLimits(3,-0.2247662,0);
    fitfuncmuo2->SetParent(muohisto1dpt__2);
    muohisto1dpt__2->GetListOfFunctions()->Add(fitfuncmuo2);
+   fitfuncmuo2->Print();
+   std::cout<<fitfuncmuo2->GetParameter(0)<<std::endl;
+   std::cout<<fitfuncmuo2->GetParameter(1)<<std::endl;
+   std::cout<<fitfuncmuo2->GetParameter(2)<<std::endl;
+   std::cout<<fitfuncmuo2->GetParameter(3)<<std::endl;
+
    Int_t ci;      // for color index setting
    TColor *color; // for color definition with alpha
    ci = TColor::GetColor("#000099");
    muohisto1dpt__2->SetLineColor(ci);
    muohisto1dpt__2->GetXaxis()->SetLabelFont(42);
-   muohisto1dpt__2->GetXaxis()->SetLabelSize(0.035);
-   muohisto1dpt__2->GetXaxis()->SetTitleSize(0.035);
+   muohisto1dpt__2->GetXaxis()->SetLabelSize(0.05);
+   muohisto1dpt__2->GetXaxis()->SetTitleSize(0.045);
    muohisto1dpt__2->GetXaxis()->SetTitleOffset(1);
    muohisto1dpt__2->GetXaxis()->SetTitleFont(42);
    muohisto1dpt__2->GetYaxis()->SetLabelFont(42);
-   muohisto1dpt__2->GetYaxis()->SetLabelSize(0.035);
-   muohisto1dpt__2->GetYaxis()->SetTitleSize(0.035);
+   muohisto1dpt__2->GetYaxis()->SetLabelSize(0.05);
+   muohisto1dpt__2->GetYaxis()->SetTitleSize(0.045);
    muohisto1dpt__2->GetYaxis()->SetTitleFont(42);
    muohisto1dpt__2->GetZaxis()->SetLabelFont(42);
    muohisto1dpt__2->GetZaxis()->SetLabelSize(0.035);
@@ -152,21 +165,62 @@ void PT_Fit_doubleExpo_muon_manuallyEdited()
    muohisto1dpt__2->Draw("");
     fitfuncmuo2->Draw("lsame");
    c1_n3->Modified();
-   c1_n3->cd();
    c1_n3->SetSelected(c1_n3);
     
     
-    TLegend *leg = new TLegend(30,1000);
-    leg->SetBorderSize(0);
-    leg->SetFillColor(0);
-    leg->AddEntry(muohisto1dpt__2,"b#bar{b} #rightarrow #mu + X","l" );
-    leg->AddEntry(fitfuncmuo2,"f(p_{T})= a exp(-bx)+ c exp(-dx)","l");
-//    leg->AddEntry("","a=8.73 #pm 0.12","");
-//    leg->AddEntry("","b=0.0992 #pm 0.0027","");
-//    leg->AddEntry("","c=13.501 #pm 0.014","");
-//    leg->AddEntry("","d=0.2247 #pm 0.0022","");
-    leg->Draw("auto");
+   TLegend *leg = new TLegend(0.38, 0.6, 0.89, 0.89);
+   leg->SetBorderSize(0);
+   leg->SetFillColor(0);
+   auto entry = leg->AddEntry("","b#bar{b} #rightarrow #mu + X","l" );
+   entry->SetTextFont(42);
+   entry->SetTextSize(0.045);
+   entry->SetMarkerStyle(0);
+   entry->SetLineWidth(3);
+   entry->SetLineColor(ci);
+   entry = leg->AddEntry(""," e#scale[1.3]{^{13.50 - 0.22 #upoint p}}^{_{T}} + e#scale[1.3]{^{8.73 - 0.1 #upoint p}}^{_{T}}","l");
+   entry->SetTextFont(42);
+   entry->SetTextSize(0.045);
+   entry->SetMarkerStyle(0);
+   entry->SetLineWidth(4);
+   entry->SetLineStyle(2);
+   entry->SetLineColor(2);
+   leg->Draw();
    c1_n3->Modified();
+   c1_n3->cd();
+
+   TPad *pad2 = new TPad("", "",0,0,0.05,1);
+   pad2->Draw();
+   pad2->cd();
+   pad2->Range(0,0,1,1);
+   pad2->SetFillColor(0);
+   pad2->SetBorderMode(0);
+   pad2->SetBorderSize(2);
+   pad2->SetFrameBorderMode(0);
+   TLatex *   tex = new TLatex(0.7,0.75,"entries");
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.73);
+   tex->SetTextAngle(90);
+   tex->SetLineWidth(2);
+   tex->Draw();
+   pad2->Modified();
+   c1_n3->cd();
+  
+// ------------>Primitives in pad3: 
+   TPad *pad3 = new TPad("", "",0.1,0,1,0.1);
+   pad3->Draw();
+   pad3->cd();
+   pad3->Range(0,0,1,1);
+   pad3->SetFillColor(0);
+   pad3->SetBorderMode(0);
+   pad3->SetBorderSize(2);
+   pad3->SetFrameBorderMode(0);
+      tex = new TLatex(0.67,0.5,"muon p_{T} [GeV]");
+   tex->SetTextFont(42);
+   tex->SetTextSize(0.5);
+   tex->SetLineWidth(2);
+   tex->Draw();
+   pad3->Modified();
+   c1_n3->cd();
 
    c1_n3->SaveAs("muonPtPlotCleanedUp.pdf");
 }

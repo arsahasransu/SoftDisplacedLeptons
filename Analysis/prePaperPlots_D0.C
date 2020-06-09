@@ -1,13 +1,33 @@
+#include "TMatrixD.h"
+#include "TLorentzVector.h"
+#include "TFile.h"
+#include "TH1D.h"
+#include "TChain.h"
+#include "TTree.h"
+#include "TROOT.h"
+#include "TVectorD.h"
+#include "TPad.h"
+#include "TCanvas.h"
+#include "TText.h"
+#include "TLegend.h"
+#include "TLatex.h"
+#include "TStyle.h"
+
+#include <iostream>
+
 class plotVarDisb_Objects {
 public:
   // Define Methods
   plotVarDisb_Objects(int);
   ~plotVarDisb_Objects();
-  void readTreeFillHist(TChain*, int);
+  void readTreeFillHist(TChain*, int, bool);
   void plotBeautifier(std::vector<TH1F*>, std::vector<TString>,
 		      TString, TString, TString,
 		      std::vector<int>, std::vector<int>, 
 		      bool, bool);
+
+  void d0_weight(double eled0, double muod0,
+		 std::vector<double> &);
 
   // Declare histogram suffix
   std::vector<TString> histSuff;
@@ -17,6 +37,14 @@ public:
   std::vector<TH1F*> hist_D0_El;
   std::vector<TH1F*> hist_D0_Mu;
     
+  // Histogram for weight
+  TH1D* weightd0eleCMS;
+  TH1D* weightd0muoCMS;
+  TH1D* weightd0eleFreya;
+  TH1D* weightd0muoFreya;
+  TH1D* weightd0eleNishita;
+  TH1D* weightd0muoNishita;
+
 };
 
 // Define the constructor
@@ -39,10 +67,49 @@ plotVarDisb_Objects::plotVarDisb_Objects(int fileTypeNum) {
     hist_D0_El.push_back(new TH1F("D0_El"+histSuff[fileTypeCtr],"",nD0bins,D0xbins));
     hist_D0_Mu.push_back(new TH1F("D0_Mu"+histSuff[fileTypeCtr],"",nD0bins,D0xbins));
   }
+  auto eleFileCMS = TFile::Open("./Analysis/HEPData-ins1317640-v1-Table_5.root", "READ");
+  weightd0eleCMS = (TH1D*) eleFileCMS->Get("Table 5/Hist1D_y1");
+  auto muoFileCMS = TFile::Open("./Analysis/HEPData-ins1317640-v1-Table_6.root", "READ");
+  weightd0muoCMS = (TH1D*) muoFileCMS->Get("Table 6/Hist1D_y1");
+
+  auto fileFreya = TFile::Open("./Analysis/d0weightFreya.root", "READ");
+  weightd0eleFreya = (TH1D*) fileFreya->Get("d0EffEleFreya");
+  weightd0muoFreya = (TH1D*) fileFreya->Get("d0EffMuoFreya");
+
+  auto fileNishita = TFile::Open("./Analysis/d0weightNishita.root", "READ");
+  weightd0eleNishita = (TH1D*) fileNishita->Get("d0EffEleNishita");
+  weightd0muoNishita = (TH1D*) fileNishita->Get("d0EffMuoNishita");
+
+}
+
+void plotVarDisb_Objects::d0_weight(double eled0, double muod0, std::vector<double> &weight) {
+
+  //double weight[6];
+  
+  eled0 = TMath::Abs(eled0);
+  muod0 = TMath::Abs(muod0);
+  eled0 = eled0/10.0;
+  muod0 = muod0/10.0;
+  int bin = 0;
+
+  bin = weightd0eleCMS->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleCMS->GetBinContent(bin));
+  bin = weightd0muoCMS->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoCMS->GetBinContent(bin));
+
+  bin = weightd0eleFreya->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleFreya->GetBinContent(bin));
+  bin = weightd0muoFreya->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoFreya->GetBinContent(bin));
+
+  bin = weightd0eleNishita->GetXaxis()->FindBin(eled0);
+  weight.push_back(weightd0eleNishita->GetBinContent(bin));
+  bin = weightd0muoNishita->GetXaxis()->FindBin(muod0);
+  weight.push_back(weightd0muoNishita->GetBinContent(bin));
 }
 
 // Read from Tree and Fill Histogram
-void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr) {
+void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr, bool isSignal) {
 
   // Declare variables to read from the trees
   int numElec, numMuon, numJet;
@@ -137,16 +204,47 @@ void plotVarDisb_Objects::readTreeFillHist(TChain *tree, int fileTypeCtr) {
     lepvec.push_back(&lep1);
     lepvec.push_back(&lep2);
 
-    hist_D0[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0);
-    hist_D0[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0);
+    double d0el = 0.0, d0mu = 0.0;
+    if(TMath::Abs(PID->at(firstPos))==11){
+      d0el = TMath::Abs(D0->at(firstPos));
+      d0mu = TMath::Abs(D0->at(secondPos));
+    }
+    if(TMath::Abs(PID->at(firstPos))==13){
+      d0mu = TMath::Abs(D0->at(firstPos));
+      d0el = TMath::Abs(D0->at(secondPos));
+    }
+    std::vector<double> weightd0;
+    weightd0.clear();
+    d0_weight(d0el, d0mu, weightd0);
+    if(!isSignal) {
+      weightd0[0] = 1.0;
+      weightd0[1] = 1.0;
+      weightd0[2] = 1.0;
+      weightd0[3] = 1.0;
+      weightd0[4] = 1.0;
+      weightd0[5] = 1.0;
+    }
+    double wtelCMS = weightd0[0];
+    double wtmuCMS = weightd0[1];
+    double wtelF = weightd0[2];
+    double wtmuF = weightd0[3];
+    double wtelN = weightd0[4];
+    double wtmuN = weightd0[5];
+    //double d0wt = wtelCMS*wtmuCMS;
+    //double d0wt = wtelF*wtmuF;
+    double d0wt = wtelN*wtmuN;
+    //std::cout<<d0wt<<" ";
+
+    hist_D0[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0, d0wt);
+    hist_D0[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0, d0wt);
     if(TMath::Abs(PID->at(firstPos))==11) {
-      hist_D0_El[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0);
-      hist_D0_Mu[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0);
+      hist_D0_El[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0, d0wt);
+      hist_D0_Mu[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0, d0wt);
     }
 
     if(TMath::Abs(PID->at(firstPos))==13) {
-      hist_D0_Mu[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0);
-      hist_D0_El[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0);
+      hist_D0_Mu[fileTypeCtr]->Fill(TMath::Abs(D0->at(firstPos))/10.0, d0wt);
+      hist_D0_El[fileTypeCtr]->Fill(TMath::Abs(D0->at(secondPos))/10.0, d0wt);
     }
 
     // Fill Histogram for good jet when a good event is found based on Leptonic selection
@@ -377,9 +475,7 @@ void plotVarDisb_Objects::plotBeautifier(std::vector<TH1F*> hist, std::vector<TS
   t->Draw();
   */
 
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".C");
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".root");
-  c1->SaveAs("./Analysis/PaperPlots/"+saveName+".pdf");
+  c1->SaveAs("./Analysis/Kinematics_wtN/"+saveName+".pdf");
   delete c1;
 }
 
@@ -439,7 +535,8 @@ void prePaperPlots_D0() {
   cout<<"Initialized instance of plotter class"<<endl;
 
   for(int ctr=0; ctr<histLabel.size(); ctr++) {
-    pVDO->readTreeFillHist(t[ctr], ctr);
+    if(ctr==0) pVDO->readTreeFillHist(t[ctr], ctr, false);
+    else pVDO->readTreeFillHist(t[ctr], ctr, true);
     cout<<"Filled corresponding "<<histLabel[ctr]<<" histograms"<<endl;
   }
 

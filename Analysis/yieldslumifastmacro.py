@@ -2,7 +2,7 @@ import os, sys
 import ROOT as rt
 import math
 
-NNcut = 0.950010
+NNcut = 0.9000000
 normBGSR1 = 4122.8
 normBGSR2 = 644.2
 normBGSR3 = 24.479
@@ -19,7 +19,8 @@ for filename in filelist:
     print(filename)
     file = rt.TFile(filename,"READ")
 #    file.ls()
-    
+
+# Get background for all three signal regions    
     histosigSR1 = file.Get("SR1")
     histosigSR2 = file.Get("SR2")
     histosigSR3 = file.Get("SR3")
